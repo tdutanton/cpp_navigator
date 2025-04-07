@@ -4,9 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace Alias {
-using IntGrid = std::vector<std::vector<int>>;
-};  // namespace Alias
+#include "common.h"
 
 class Graph {
  public:
