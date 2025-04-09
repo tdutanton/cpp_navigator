@@ -18,22 +18,15 @@ void FileReader::close_file() {
 size_t FileReader::process_graph_size(const std::string& a_line) {
   std::istringstream iss(a_line);
   size_t result{0};
-  if (!(iss >> result)) {
-    valid_file_ = false;
-    throw std::invalid_argument(
-        "First line parsing error - it's not a number.");
-  }
+  if (!(iss >> result)) valid_file_ = false;
   std::string remaining;
   std::getline(iss, remaining);
-  if (!remaining.empty() && remaining.back() == '\r') {
-    remaining.pop_back();
-  }
+  if (!remaining.empty() && remaining.back() == '\r') remaining.pop_back();
   if (!remaining.empty() &&
-      remaining.find_first_not_of(" \t") != std::string::npos) {
+      remaining.find_first_not_of(" \t") != std::string::npos)
     valid_file_ = false;
-    throw std::invalid_argument(
-        "First line parsing error - there's something else after a number.");
-  }
+  if (result <= 1) valid_file_ = false;
+  if (!valid_file_) throw std::invalid_argument("First line parsing error");
   return result;
 }
 
@@ -54,6 +47,7 @@ Alias::IntRow FileReader::process_graph_line(const std::string& a_line) {
     }
     if (n_count != size_parsed_) valid_file_ = false;
   }
+  if (!valid_file_) throw std::invalid_argument("Line parsing error");
   return result;
 }
 
@@ -71,6 +65,7 @@ Alias::IntGrid FileReader::process_graph_grid(const std::string& a_filename) {
   }
   if (n_count != size_parsed_) valid_file_ = false;
   close_file();
+  if (!valid_file_) throw std::invalid_argument("Line parsing error");
   return result;
 }
 
@@ -78,8 +73,7 @@ void FileReader::set_parsed_graph_size(const std::string& a_filename) {
   set_file(a_filename);
   open_file();
   std::string first_line;
-  if (std::getline(file_, first_line) && valid_file_) {
+  if (std::getline(file_, first_line) && valid_file_)
     size_parsed_ = process_graph_size(first_line);
-  }
   close_file();
 }

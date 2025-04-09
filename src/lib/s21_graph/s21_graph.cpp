@@ -7,7 +7,7 @@ Graph Graph::LoadGraphFromFile(const std::string& a_filename) {
     size_t size = filereader.get_parsed_size();
     Graph result(size);
     Alias::IntGrid matrix = filereader.process_graph_grid(a_filename);
-    result.adjacency_matrix_ = std::move(matrix);
+    result.adjacency_matrix_ = matrix;
     return result;
   } catch (const std::exception& e) {
     std::cerr << "Error loading graph: " << e.what() << std::endl;

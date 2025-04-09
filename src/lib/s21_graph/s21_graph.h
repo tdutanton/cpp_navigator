@@ -37,8 +37,8 @@ class Graph {
 #else
  private:
 #endif
-  Alias::IntGrid adjacency_matrix_;
   size_t graph_size_;
+  Alias::IntGrid adjacency_matrix_;
 };
 
 #endif

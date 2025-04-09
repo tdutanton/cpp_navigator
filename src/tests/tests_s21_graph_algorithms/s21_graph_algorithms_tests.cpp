@@ -1,4 +1,4 @@
-#include "s21_graph_tests.h"
+#include "s21_graph_algorithms_tests.h"
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
