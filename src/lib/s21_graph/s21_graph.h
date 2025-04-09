@@ -30,7 +30,7 @@ class Graph {
     return adjacency_matrix_[row];
   }
   void export_config_txt(std::ofstream& a_file);
-  void export_node_line_txt(std::ofstream& a_file, const char& a_node_name,
+  void export_node_line_txt(std::ofstream& a_file, unsigned& a_i_node_number,
                             size_t a_row, size_t a_col);
 
   void print_matrix_graph();

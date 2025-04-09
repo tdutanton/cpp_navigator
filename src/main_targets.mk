@@ -23,6 +23,19 @@ s21_graph_algorithms: $(LIB_ALGORITHMS_O)
 	@rm -f $(LIB_ALGORITHMS_O)
 #### >>BUILD<< ####
 
+#### <<ADDITIONAL LIBS - STACK AND QUEUE>> ####
+.PHONY: s21_stack
+s21_stack: $(LINKED_LIST_O) $(LIB_STACK_O)
+	@ar rcs $(LIB_NAME_STACK) $(LINKED_LIST_O) $(LIB_STACK_O)
+	@ranlib $(LIB_NAME_STACK)
+	@rm -f $(LINKED_LIST_O) $(LIB_STACK_O)
+
+.PHONY: s21_queue
+s21_queue: $(LINKED_LIST_O) $(LIB_QUEUE_O)
+	@ar rcs $(LIB_NAME_QUEUE) $(LINKED_LIST_O) $(LIB_QUEUE_O)
+	@ranlib $(LIB_NAME_QUEUE)
+	@rm -f $(LINKED_LIST_O) $(LIB_QUEUE_O)
+
 #### <<TESTING>> ####
 .PHONY: test
 test: test_graph test_algorithms
@@ -31,14 +44,16 @@ test: test_graph test_algorithms
 test_graph: $(TEST_GRAPH_O) $(LIB_NAME_GRAPH)
 	@echo "Start testing graph"
 	@rm -f $(FILE_NAME_TEST_GRAPH)
-	@$(CC) $(CFLAGS) $(TEST_GRAPH_O) -DTEST -o $(FILE_NAME_TEST_GRAPH) -L. -l:$(LIB_NAME_GRAPH) $(LFLAGS) $(DEBUG_FLAG)
+	@$(CC) $(CFLAGS) $(TEST_GRAPH_O) -DTEST -o $(FILE_NAME_TEST_GRAPH)\ 
+	-L. l:$(LIB_NAME_GRAPH) $(LFLAGS) $(DEBUG_FLAG)
 	@./$(FILE_NAME_TEST_GRAPH) || exit 1
 
 .PHONY: test_algorithms
 test_algorithms: $(TEST_ALGORITHMS_O) $(LIB_NAME_ALGORITHMS)
 	@echo "Start testing graph algorithms"
 	@rm -f $(FILE_NAME_TEST_ALGORITHMS)
-	@$(CC) $(CFLAGS) $(TEST_ALGORITHMS_O) -DTEST -o $(FILE_NAME_TEST_ALGORITHMS) -L. -l:$(LIB_NAME_ALGORITHMS) $(LFLAGS) $(DEBUG_FLAG)
+	@$(CC) $(CFLAGS) $(TEST_ALGORITHMS_O) -DTEST -o $(FILE_NAME_TEST_ALGORITHMS)\
+	 -L. -l:$(LIB_NAME_ALGORITHMS) $(LFLAGS) $(DEBUG_FLAG)
 	@./$(FILE_NAME_TEST_ALGORITHMS) || exit 1
 #### >>TESTING<< ####
 
@@ -60,14 +75,14 @@ clean:
 	@rm -rf $(FILE_NAME_TEST_GRAPH) $(FILE_NAME_TEST_ALGORITHMS) *.o .clang-format
 	@rm -rf $(LIB_GRAPH_O) $(LIB_ALGORITHMS_O) ./tests/**/*.o *.gcno *.gcda ./report
 	@rm -rf $(GCOV_NAME)
-	@rm -rf $(LIB_NAME_GRAPH) $(LIB_NAME_ALGORITHMS)
+	@rm -rf $(LIB_NAME_GRAPH) $(LIB_NAME_ALGORITHMS) $(LIB_NAME_STACK) $(LIB_NAME_QUEUE)
 	@rm -rf *.out
 	@rm -rf $(UML_FILE_NAME)
 	@rm -rf out.png
 	@rm -rf $(UML_PNG_FILE_NAME)
-	@rm -rf $(DOCS_FOLDER)
+	@rm -rf $(DIR_DOCS)
 	@rm -rf build
-	@rm -rf $(REPORT_DIR)
+	@rm -rf $(DIR_REPORT)
 	@rm -rf *.exe
 
 .PHONY: install
@@ -75,10 +90,10 @@ install:
 	@echo "INSTALLATION IN PROGRESS"
 	@(make -s $(LIB_NAME_GRAPH))
 	@(make -s $(LIB_NAME_ALGORITHMS))
-	@mkdir -p $(INSTALL_DIR)/
-	@mv $(LIB_NAME_GRAPH) $(LIB_NAME_ALGORITHMS) $(INSTALL_DIR)/
+	@mkdir -p $(DIR_INSTALL)/
+	@mv $(LIB_NAME_GRAPH) $(LIB_NAME_ALGORITHMS) $(DIR_INSTALL)/
 	@(make -s clean)
-	@echo "INSTALLATION COMPLETED - LIBS IN $(INSTALL_DIR) FOLDER"
+	@echo "INSTALLATION COMPLETED - LIBS IN $(DIR_INSTALL) FOLDER"
 
 .PHONY: uml_diagram
 uml_diagram: pip3_check_lib uml_check_lib plantuml_check_lib
@@ -88,29 +103,19 @@ uml_diagram: pip3_check_lib uml_check_lib plantuml_check_lib
 
 .PHONY: dvi
 dvi: clean doxygen_check_lib xetex_check_lib cyrillic_check_lib
-	@mkdir -p $(DOCS_FOLDER)
+	@mkdir -p $(DIR_DOCS)
 	@doxygen Doxyfile > /dev/null 2>&1
-	@cd $(DOCS_FOLDER)/latex && xelatex -interaction=batchmode refman.tex > /dev/null 2>&1
-	@if [ $$? -eq 0 ]; then echo "DVI make success. See $(DOCS_FOLDER)/latex/refman.pdf for \
-	pdf and $(DOCS_FOLDER)/html/index.html for html"; else echo "DVI ERROR"; fi
+	@cd $(DIR_DOCS)/latex && xelatex -interaction=batchmode refman.tex > /dev/null 2>&1
+	@if [ $$? -eq 0 ]; then echo "DVI make success. See $(DIR_DOCS)/latex/refman.pdf for \
+	pdf and $(DIR_DOCS)/html/index.html for html"; else echo "DVI ERROR"; fi
 
 .PHONY: dist
 dist: build
-	@mkdir -p $(DIST_FOLDER)/
-	@cp build/$(DIST_FILE) $(DIST_FOLDER)/$(DIST_FILE)
-	tar cvzf $(DIST_FOLDER).tgz $(DIST_FOLDER)/
-	@rm -rf $(DIST_FOLDER)/
+	@mkdir -p $(DIR_DIST)/
+	@cp build/$(DIST_FILE) $(DIR_DIST)/$(DIST_FILE)
+	tar cvzf $(DIR_DIST).tgz $(DIR_DIST)/
+	@rm -rf $(DIR_DIST)/
 
 .PHONY: rebuild
 rebuild: clean build
 
-.PHONY: valgrind_test_all
-valgrind_test_all: valgrind_test_graph valgrind_test_algos
-
-.PHONY: valgrind_test_graph
-valgrind_test_graph: test_graph
-	valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=all --track-origins=yes -s ./$(FILE_NAME_TEST_GRAPH)
-
-.PHONY: valgrind_test_algos
-valgrind_test_algos: test_algorithms
-	valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=all --track-origins=yes -s ./$(FILE_NAME_TEST_ALGORITHMS)

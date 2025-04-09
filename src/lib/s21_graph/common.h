@@ -10,8 +10,6 @@ using IntGrid = std::vector<IntRow>;
 };  // namespace Alias
 
 namespace Serialize {
-static const char first_node_name = 'a';
-static const char first_node_name_extra = 'A';
 static const char open_bracket = '{';
 static const char closed_bracket = '}';
 static const char tab_symb = '\t';

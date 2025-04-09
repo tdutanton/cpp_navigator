@@ -6,6 +6,23 @@
 %.o: %.cpp
 	@$(CC) $(CFLAGS) $(DEBUG_FLAG) -c $< -o $@
 
+########################################################
+#					SUPPORT TARGETS					   #
+#						   \/						   #
+########################################################
+
+.PHONY: valgrind_all_tests
+valgrind_test_all: valgrind_test_graph valgrind_test_algos
+
+.PHONY: valgrind_test_graph
+valgrind_test_graph: test_graph
+	valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=all \
+	--track-origins=yes -s ./$(FILE_NAME_TEST_GRAPH)
+
+.PHONY: valgrind_test_algos
+valgrind_test_algos: test_algorithms
+	valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=all \
+	--track-origins=yes -s ./$(FILE_NAME_TEST_ALGORITHMS)
 
 ########################################################
 # 		CHECK IF NEEDED LIBRARIES ARE INSTALLED 	   #
