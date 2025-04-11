@@ -5,8 +5,11 @@
 #include <vector>
 
 namespace Alias {
+using NodesPath = std::vector<unsigned>;
 using IntRow = std::vector<int>;
 using IntGrid = std::vector<IntRow>;
+using distance = unsigned;
+using node_index = unsigned;
 };  // namespace Alias
 
 namespace Serialize {

@@ -33,8 +33,6 @@ class Graph {
   void export_node_line_txt(std::ofstream& a_file, unsigned& a_i_node_number,
                             size_t a_row, size_t a_col);
 
-  void print_matrix_graph();
-
 #ifdef TEST
  public:
 #else
@@ -43,5 +41,7 @@ class Graph {
   size_t graph_size_;
   Alias::IntGrid adjacency_matrix_;
 };
+
+std::ostream& operator<<(std::ostream& os, const Graph& graph);
 
 #endif

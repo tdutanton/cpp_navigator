@@ -15,15 +15,6 @@ Graph Graph::LoadGraphFromFile(const std::string& a_filename) {
   }
 }
 
-void Graph::print_matrix_graph() {
-  for (size_t i = 0; i < graph_size_; i++) {
-    for (size_t j = 0; j < graph_size_; j++) {
-      std::cout << adjacency_matrix_[i][j] << " ";
-    }
-    std::cout << std::endl;
-  }
-}
-
 void Graph::ExportGraphToDot(const std::string& a_filename) {
   std::ofstream file(a_filename);
   if (!file) {
@@ -71,4 +62,14 @@ void Graph::export_node_line_txt(std::ofstream& a_file,
            << Serialize::end_line;
     a_file << Serialize::semicolon;
   }
+}
+
+std::ostream& operator<<(std::ostream& os, const Graph& graph) {
+  for (size_t i = 0; i < graph.get_graph_size(); i++) {
+    for (size_t j = 0; j < graph.get_graph_size(); j++) {
+      os << graph[i][j] << " ";
+    }
+    os << std::endl;
+  }
+  return os;
 }

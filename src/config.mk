@@ -11,32 +11,52 @@ DEBUG_FLAG = -g
 FILE_NAME_TEST_GRAPH = tests_graph
 FILE_NAME_TEST_ALGORITHMS = tests_algorithms
 
-LIB_GRAPH_SRC = $(wildcard lib/$(GRAPH_LIB_DIR)/*.cpp)
-LIB_ALGORITHMS_SRC = $(wildcard lib/$(ALGORITHMS_LIB_DIR)/*.cpp)
-TEST_GRAPH_SRC =  $(wildcard tests/$(GRAPH_TEST_DIR)/*.cpp)
-TEST_ALGORITHMS_SRC = $(wildcard tests/$(ALGORITHMS_TEST_DIR)/*.cpp)
+LIB_GRAPH_SRC = $(wildcard $(DIR_LIBS)/$(DIR_GRAPH_LIB)/*.cpp)
+LIB_ALGORITHMS_SRC = $(wildcard $(DIR_LIBS)/$(DIR_ALGORITHMS_LIB)/*.cpp)
+LINKED_LIST_SRC = $(wildcard $(DIR_LIBS)/$(DIR_LINKED_LIST)/*.cpp)
+LIB_STACK_SRC = $(wildcard $(DIR_LIBS)/$(DIR_STACK_LIB)/*.cpp)
+LIB_QUEUE_SRC = $(wildcard $(DIR_LIBS)/$(DIR_QUEUE_LIB)/*.cpp)
+
+TEST_GRAPH_SRC =  $(wildcard $(DIR_TESTS)/$(DIR_GRAPH_TEST)/*.cpp)
+TEST_ALGORITHMS_SRC = $(wildcard $(DIR_TESTS)/$(DIR_ALGORITHMS_TEST)/*.cpp)
 
 LIB_GRAPH_O = $(LIB_GRAPH_SRC:.cpp=.o)
 LIB_ALGORITHMS_O = $(LIB_ALGORITHMS_SRC:.cpp=.o)
+LINKED_LIST_O = $(LINKED_LIST_SRC:.cpp=.o)
+LIB_STACK_O = $(LIB_STACK_SRC:.cpp=.o)
+LIB_QUEUE_O = $(LIB_QUEUE_SRC:.cpp=.o)
+
 TEST_GRAPH_O = $(TEST_GRAPH_SRC:.cpp=.o)
 TEST_ALGORITHMS_O = $(TEST_ALGORITHMS_SRC:.cpp=.o)
 
 GCOV_NAME = gcov_tests.info
 
-#### FOLDERS ####
-DOCS_FOLDER = documentation
-DIST_FOLDER = Graph
 DIST_FILE = Graph_lib
-REPORT_DIR = report
-GRAPH_LIB_DIR = s21_graph
-ALGORITHMS_LIB_DIR = s21_graph_algorithms
-GRAPH_TEST_DIR = tests_s21_graph
-ALGORITHMS_TEST_DIR = tests_s21_graph_algorithms
-INSTALL_DIR = s21_bin
+
+#### FOLDERS ####
+DIR_LIBS = lib
+DIR_TESTS = tests
+
+DIR_GRAPH_LIB = s21_graph
+DIR_ALGORITHMS_LIB = s21_graph_algorithms
+DIR_LINKED_LIST = s21_linked_list
+DIR_STACK_LIB = s21_stack
+DIR_QUEUE_LIB = s21_queue
+
+DIR_GRAPH_TEST = tests_s21_graph
+DIR_ALGORITHMS_TEST = tests_s21_graph_algorithms
+
+DIR_INSTALL = s21_bin
+
+DIR_DOCS = documentation
+DIR_DIST = Graph
+DIR_REPORT = report
 
 #### TARGET LLIBRARIES ####
 LIB_NAME_GRAPH = s21_graph.a
 LIB_NAME_ALGORITHMS = s21_graph_algorithms.a
+LIB_NAME_STACK = s21_stack.a
+LIB_NAME_QUEUE = s21_queue.a
 
 #### UML NAMES ####
 UML_LIB = hpp2plantuml

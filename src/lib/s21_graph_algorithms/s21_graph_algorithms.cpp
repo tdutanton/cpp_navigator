@@ -1,0 +1,187 @@
+#include "s21_graph_algorithms.h"
+
+Alias::NodesPath GraphAlgorithms::DepthFirstSearch(const Graph& graph,
+                                                   const int start_vertex) {
+  s21::stack<unsigned> stack_nodes;
+  return TraverseGraph(graph, start_vertex, stack_nodes);
+}
+
+Alias::NodesPath GraphAlgorithms::BreadthFirstSearch(const Graph& graph,
+                                                     const int start_vertex) {
+  s21::queue<unsigned> queue_nodes;
+  return TraverseGraph(graph, start_vertex, queue_nodes);
+}
+
+ShortPath GraphAlgorithms::GetShortPath(const Graph& graph, int start_index) {
+  const size_t size = graph.get_graph_size();
+  /// Container of visit statuses for nodes
+  std::vector<bool> visited(size, false);
+  ///< Minimal distance to nodes. distance[i] - current minimal distance from
+  ///< start to i
+  std::vector<Alias::distance> distance_array(size, UINT_MAX);
+  ///< Previous node in minimal path
+  std::vector<int> prev_node(size, -1);
+
+  /// Min-heap - get node with minimal distance
+  /// pair<unsigned, unsigned> - distance, node_index
+  std::priority_queue<
+      std::pair<Alias::distance, Alias::node_index>,
+      std::vector<std::pair<Alias::distance, Alias::node_index>>,
+      std::greater<>>
+      queue_nodes;
+
+  /// Distance for start_node = 0
+  distance_array[start_index] = 0;
+  /// Push in queue just like in BreadthFirstSearch
+  queue_nodes.push(std::make_pair(0, start_index));
+
+  while (!queue_nodes.empty()) {
+    /// Take the nearest node always - priority_queue helps
+    Alias::distance current_distance = queue_nodes.top().first;
+    Alias::node_index current_node = queue_nodes.top().second;
+    queue_nodes.pop();
+
+    if (visited[current_node]) continue;
+    visited[current_node] = true;
+
+    /// Look every neighboors (i_neigh) of current_node
+    for (Alias::node_index i_neighbor = 0; i_neighbor < size; ++i_neighbor) {
+      /// Distance from current_node to i_neigh
+      Alias::distance weight = graph[current_node][i_neighbor];
+      if (weight > 0 && !visited[i_neighbor]) {
+        /// New distance to neighboor
+        Alias::distance perspective_distance = current_distance + weight;
+        /// If new distance is lower - refresh distance_array to this node
+        /// (i_neigh)
+        if (perspective_distance < distance_array[i_neighbor]) {
+          /// Refresh new distance - it's shorter than previous value
+          distance_array[i_neighbor] = perspective_distance;
+          /// Refresh the best prev_node of i_neigh for take a path
+          prev_node[i_neighbor] = current_node;
+          /// Push neighboor to queue to take it in a future
+          queue_nodes.push(std::make_pair(perspective_distance, i_neighbor));
+        }
+      }
+    }
+  }
+  return {distance_array, prev_node};
+}
+
+unsigned GraphAlgorithms::GetShortestPathBetweenVertices(const Graph& graph,
+                                                         const int vertex1,
+                                                         const int vertex2) {
+  /// minus 1 because of indexes values goes from 0
+  int start = vertex1 - 1;
+  int end = vertex2 - 1;
+
+  auto [distance_array, prev_node] = GetShortPath(graph, start);
+  return distance_array[end];
+}
+
+Alias::IntRow GraphAlgorithms::GetShortestVectorBetweenVertices(
+    const Graph& graph, const int vertex1, const int vertex2) {
+  int start = vertex1 - 1;
+  int end = vertex2 - 1;
+
+  auto [distance_array, prev_node] = GetShortPath(graph, start);
+  Alias::IntRow short_path;
+
+  if (distance_array[end] != UINT_MAX) {
+    for (int at = end; at != -1; at = prev_node[at])
+      short_path.push_back(at + 1);
+    std::reverse(short_path.begin(), short_path.end());
+  }
+  return short_path;
+}
+
+Alias::IntGrid GraphAlgorithms::GetShortestPathsBetweenAllVertices(
+    const Graph& graph) {
+  const size_t size = graph.get_graph_size();
+  Alias::IntGrid result{size, std::vector<int>(size, INT_MAX)};
+
+  for (size_t i = 0; i < result.size(); i++) {
+    for (size_t j = 0; j < result.size(); j++) {
+      if (graph[i][j] == 0)
+        result[i][j] = INT_MAX;
+      else
+        result[i][j] = graph[i][j];
+    }
+  }
+  for (size_t i = 0; i < result.size(); i++) {
+    result[i][i] = 0;
+  }
+
+  for (size_t k = 0; k < size; k++) {
+    for (size_t i = 0; i < size; i++) {
+      for (size_t j = 0; j < size; j++) {
+        if (result[i][k] != INT_MAX && result[k][j] != INT_MAX) {
+          if (result[i][j] > result[i][k] + result[k][j])
+            result[i][j] = result[i][k] + result[k][j];
+        }
+      }
+    }
+  }
+
+  for (size_t i = 0; i < size; i++) {
+    for (size_t j = 0; j < size; j++) {
+      if (result[i][j] == INT_MAX) result[i][j] = 0;
+    }
+  }
+
+  return result;
+}
+
+SpanTree GraphAlgorithms::GetSpanTree(const Graph& graph) {
+  const size_t size = graph.get_graph_size();
+  std::vector<bool> visited(size, false);
+  std::vector<Alias::distance> distance_array(size, UINT_MAX);
+  std::vector<int> prev_node(size, -1);
+  std::priority_queue<
+      std::pair<Alias::distance, Alias::node_index>,
+      std::vector<std::pair<Alias::distance, Alias::node_index>>,
+      std::greater<>>
+      queue_nodes;
+  int mst_weight = 0;
+  distance_array[0] = 0;
+  queue_nodes.push(std::make_pair(0, 0));
+
+  while (!queue_nodes.empty()) {
+    Alias::node_index current_node = queue_nodes.top().second;
+    queue_nodes.pop();
+
+    if (visited[current_node]) continue;
+    visited[current_node] = true;
+    for (Alias::node_index i_neighbor = 0; i_neighbor < size; ++i_neighbor) {
+      Alias::distance weight = graph[current_node][i_neighbor];
+      if (weight > 0 && !visited[i_neighbor] &&
+          weight < distance_array[i_neighbor]) {
+        distance_array[i_neighbor] = weight;
+        mst_weight += weight;
+        prev_node[i_neighbor] = current_node;
+        queue_nodes.push(
+            std::make_pair(distance_array[i_neighbor], i_neighbor));
+      }
+    }
+  }
+
+  Alias::IntGrid tree_matrix{size, std::vector<int>(size, 0)};
+  for (size_t i = 0; i < size; i++) {
+    int u = prev_node[i];
+    int v = i;
+    if (u != -1) {
+      tree_matrix[u][v] = graph[u][v];
+      tree_matrix[v][u] = graph[v][u];
+    }
+  }
+  return {tree_matrix, mst_weight};
+}
+
+Alias::IntGrid GraphAlgorithms::GetLeastSpanningTree(const Graph& graph) {
+  auto [matrix, weight] = GetSpanTree(graph);
+  return matrix;
+}
+
+int GraphAlgorithms::GetSpanTreeWeight(const Graph& graph) {
+  auto [matrix, weight] = GetSpanTree(graph);
+  return weight;
+}
