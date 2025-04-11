@@ -7,7 +7,10 @@ template <typename T>
 Alias::NodesPath TraverseGraph(const Graph& a_graph, int a_start_vertex,
                                T& a_container) {
   Alias::NodesPath result;
-  size_t size = a_graph.get_graph_size();
+  const size_t size = a_graph.get_graph_size();
+  if (size == 0 || a_start_vertex < 0 ||
+      static_cast<size_t>(a_start_vertex) >= size)
+    return result;
   std::vector<bool> visited(size, false);
 
   a_container.push(a_start_vertex);

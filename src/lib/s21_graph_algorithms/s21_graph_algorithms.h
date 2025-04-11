@@ -24,6 +24,11 @@ struct SpanTree {
   int tree_weight;
 };
 
+struct TsmResult {
+  Alias::IntRow vertices;
+  double distance;
+};
+
 class GraphAlgorithms {
  public:
   static Alias::NodesPath DepthFirstSearch(const Graph& graph,
@@ -31,7 +36,7 @@ class GraphAlgorithms {
   static Alias::NodesPath BreadthFirstSearch(const Graph& graph,
                                              const int start_vertex);
 
-  static ShortPath GetShortPath(const Graph& graph, int start_index);
+  static ShortPath GetShortPath(const Graph& graph, const int start_index);
   static unsigned GetShortestPathBetweenVertices(const Graph& graph,
                                                  const int vertex1,
                                                  const int vertex2);
@@ -44,6 +49,8 @@ class GraphAlgorithms {
   static SpanTree GetSpanTree(const Graph& graph);
   static Alias::IntGrid GetLeastSpanningTree(const Graph& graph);
   static int GetSpanTreeWeight(const Graph& graph);
+
+  static TsmResult SolveTravelingSalesmanProblem(const Graph& graph);
 };
 
 #include "s21_graph_algorithms.tpp"

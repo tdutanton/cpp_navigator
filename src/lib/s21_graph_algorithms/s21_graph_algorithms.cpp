@@ -12,8 +12,12 @@ Alias::NodesPath GraphAlgorithms::BreadthFirstSearch(const Graph& graph,
   return TraverseGraph(graph, start_vertex, queue_nodes);
 }
 
-ShortPath GraphAlgorithms::GetShortPath(const Graph& graph, int start_index) {
+ShortPath GraphAlgorithms::GetShortPath(const Graph& graph,
+                                        const int start_index) {
+  ShortPath result;
   const size_t size = graph.get_graph_size();
+  if (size == 0 || start_index < 0 || static_cast<size_t>(start_index) >= size)
+    return result;
   /// Container of visit statuses for nodes
   std::vector<bool> visited(size, false);
   ///< Minimal distance to nodes. distance[i] - current minimal distance from
@@ -64,7 +68,10 @@ ShortPath GraphAlgorithms::GetShortPath(const Graph& graph, int start_index) {
       }
     }
   }
-  return {distance_array, prev_node};
+
+  result.distances = distance_array;
+  result.prev_nodes = prev_node;
+  return result;
 }
 
 unsigned GraphAlgorithms::GetShortestPathBetweenVertices(const Graph& graph,
@@ -97,6 +104,7 @@ Alias::IntRow GraphAlgorithms::GetShortestVectorBetweenVertices(
 Alias::IntGrid GraphAlgorithms::GetShortestPathsBetweenAllVertices(
     const Graph& graph) {
   const size_t size = graph.get_graph_size();
+  if (size == 0) return Alias::IntGrid(0);
   Alias::IntGrid result{size, std::vector<int>(size, INT_MAX)};
 
   for (size_t i = 0; i < result.size(); i++) {
@@ -133,6 +141,7 @@ Alias::IntGrid GraphAlgorithms::GetShortestPathsBetweenAllVertices(
 
 SpanTree GraphAlgorithms::GetSpanTree(const Graph& graph) {
   const size_t size = graph.get_graph_size();
+  // if (size == 0) !TODO
   std::vector<bool> visited(size, false);
   std::vector<Alias::distance> distance_array(size, UINT_MAX);
   std::vector<int> prev_node(size, -1);

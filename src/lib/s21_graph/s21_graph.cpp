@@ -1,8 +1,8 @@
 #include "s21_graph.h"
 
 Graph Graph::LoadGraphFromFile(const std::string& a_filename) {
-  FileReader filereader;
   try {
+    FileReader filereader;
     filereader.set_parsed_graph_size(a_filename);
     size_t size = filereader.get_parsed_size();
     Graph result(size);
