@@ -44,15 +44,15 @@ test: test_graph test_algorithms
 test_graph: $(TEST_GRAPH_O) $(LIB_NAME_GRAPH)
 	@echo "Start testing graph"
 	@rm -f $(FILE_NAME_TEST_GRAPH)
-	@$(CC) $(CFLAGS) $(TEST_GRAPH_O) -DTEST -o $(FILE_NAME_TEST_GRAPH)\ 
-	-L. l:$(LIB_NAME_GRAPH) $(LFLAGS) $(DEBUG_FLAG)
+	@$(CC) $(CFLAGS) $(TEST_GRAPH_O) -DTEST -o $(FILE_NAME_TEST_GRAPH) \
+	-L. -l:$(LIB_NAME_GRAPH) $(LFLAGS) $(DEBUG_FLAG)
 	@./$(FILE_NAME_TEST_GRAPH) || exit 1
 
 .PHONY: test_algorithms
 test_algorithms: $(TEST_ALGORITHMS_O) $(LIB_NAME_ALGORITHMS)
 	@echo "Start testing graph algorithms"
 	@rm -f $(FILE_NAME_TEST_ALGORITHMS)
-	@$(CC) $(CFLAGS) $(TEST_ALGORITHMS_O) -DTEST -o $(FILE_NAME_TEST_ALGORITHMS)\
+	@$(CC) $(CFLAGS) $(TEST_ALGORITHMS_O) -DTEST -o $(FILE_NAME_TEST_ALGORITHMS) \
 	 -L. -l:$(LIB_NAME_ALGORITHMS) $(LFLAGS) $(DEBUG_FLAG)
 	@./$(FILE_NAME_TEST_ALGORITHMS) || exit 1
 #### >>TESTING<< ####

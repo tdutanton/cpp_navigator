@@ -1,6 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <climits>
 #include <string>
 #include <vector>
 

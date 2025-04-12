@@ -3,7 +3,7 @@ SHELL = /bin/sh
 #### COMPILATION FLAGS ####
 CC = g++ -std=c++20
 CFLAGS = -Wall -Werror -Wextra
-LFLAGS = -pthread -lgtest -lstdc++
+LFLAGS = -pthread -lgtest -lgtest_main -lstdc++
 GFLAGS = -fprofile-arcs -ftest-coverage
 DEBUG_FLAG = -g
 
