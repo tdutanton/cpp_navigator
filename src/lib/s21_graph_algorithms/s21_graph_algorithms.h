@@ -53,6 +53,36 @@ class GraphAlgorithms {
   static TsmResult SolveTravelingSalesmanProblem(const Graph& graph);
 };
 
+// ANTZZZ
+
+class Ant {
+ public:
+  Ant() : start_vertex_{0} {}
+  explicit Ant(unsigned a_start_vertex) : start_vertex_{a_start_vertex} {}
+  ~Ant() = default;
+
+  double mark_pheromone();
+  double transition_probability(unsigned a_current_vertex, unsigned a_neighbor);
+  double random_destination();
+
+ private:
+  TsmResult ant_path_;  //   Alias::IntRow vertices; double distance;
+  unsigned start_vertex_;
+  unsigned current_vertex_;
+  bool is_available_next_step_;
+};
+
+class AntHill {
+ public:
+  AntHill(const Graph& a_graph);
+  ~AntHill() = default;
+
+ private:
+  std::vector<Ant> ant_squad_;
+  double alpha_pheromone_weight_;  ///< from 0 to 1. 0 - greedy algo
+  double beta_distance_weight_;    ///< from ?? to ??
+};
+
 #include "s21_graph_algorithms.tpp"
 
 #endif
