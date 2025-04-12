@@ -79,8 +79,14 @@ class AntHill {
 
  private:
   std::vector<Ant> ant_squad_;
-  double alpha_pheromone_weight_;  ///< from 0 to 1. 0 - greedy algo
-  double beta_distance_weight_;    ///< from ?? to ??
+  double alpha_pheromone_weight_ = 1.0;  ///< from 0 to 1. 0 - greedy algo
+  double beta_distance_weight_ = 2.0;    ///< from ?? to ??
+  double q_regulation_parameter_ =
+      100.0;  ///< parameter for get good speed of algorithm. 1 - for small
+  ///< graphs, 100 - default value for most of graphs, Lko - length
+  ///< of greedy algo - for big and scary graphs
+  double p_pheromone_evaporation_coef =
+      0.1;  ///< small value - the same paths, big value - fast and boring paths
 };
 
 #include "s21_graph_algorithms.tpp"
