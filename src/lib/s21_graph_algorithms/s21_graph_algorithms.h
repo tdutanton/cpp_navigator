@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <queue>
 #include <random>
+#include <unordered_set>
 
 #include "../s21_graph/s21_graph.h"
 #include "../s21_linked_list/s21_linked_list.h"
@@ -62,16 +63,38 @@ class Ant {
       : start_vertex_{a_start_vertex} {}
   ~Ant() = default;
 
+  Alias::NodesPath get_available_neighbors(
+      const Graph&
+          a_graph);  ///< Get vector of available vertices for ant journey (if
+                     ///< path == 0 and if neighbor was visited)
+
   double mark_pheromone();  ///< Пометить путь феромоном
 
   double random_destination();  ///< Сгенерированная случайная величина для
                                 ///< выбора соседа
+  TsmResult get_ant_path_result() const { return ant_path_; }
+
+  bool is_vertex_visited(const size_t a_vertex) const {
+    return visited_vertices_.find(a_vertex) != visited_vertices_.end();
+  }
+
+  void visit_vertex(const size_t a_vertex) {
+    journey_history_.push_back(a_vertex);
+    visited_vertices_.insert(a_vertex);
+  }
+
+  bool is_vertex_unvisited(const size_t vertex) const {
+    return visited_vertices_.count(vertex) == 0;
+  }
 
  private:
-  TsmResult ant_path_;  //   Alias::IntRow vertices; double distance;
   size_t start_vertex_;
   size_t current_vertex_;
   bool is_available_next_step_;
+  std::unordered_set<size_t>
+      visited_vertices_;  ///< For quick search in is_vertex_unvisited
+  Alias::NodesPath journey_history_;
+  TsmResult ant_path_;  //   Alias::IntRow vertices; double distance;
 };
 
 class AntHill {

@@ -219,3 +219,15 @@ void AntHill::prepare_ants() {
     ant_squad_[i] = Ant(i);
   }
 }
+
+Alias::NodesPath Ant::get_available_neighbors(const Graph& a_graph) {
+  const size_t size = a_graph.get_graph_size();
+  Alias::NodesPath result;
+  for (size_t i_neigh = 0; i_neigh < size; i_neigh++) {
+    bool is_neighbor_exists =
+        (a_graph[current_vertex_][i_neigh] != 0) ? true : false;
+    bool is_neighbor_strange = is_vertex_unvisited(i_neigh);
+    if (is_neighbor_exists && is_neighbor_strange) result.push_back(i_neigh);
+  }
+  return result;
+}

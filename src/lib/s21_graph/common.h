@@ -6,13 +6,13 @@
 #include <vector>
 
 namespace Alias {
-using NodesPath = std::vector<unsigned>;
+using distance = unsigned;
+using node_index = unsigned;
+using NodesPath = std::vector<node_index>;
 using IntRow = std::vector<int>;
 using IntGrid = std::vector<IntRow>;
 using PheromoneRow = std::vector<double>;
 using PheromoneGrid = std::vector<PheromoneRow>;
-using distance = unsigned;
-using node_index = unsigned;
 };  // namespace Alias
 
 namespace Serialize {
