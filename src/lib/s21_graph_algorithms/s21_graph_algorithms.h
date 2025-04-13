@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <queue>
+#include <random>
 
 #include "../s21_graph/s21_graph.h"
 #include "../s21_linked_list/s21_linked_list.h"
@@ -26,7 +27,7 @@ struct SpanTree {
 
 struct TsmResult {
   Alias::IntRow vertices;
-  double distance;
+  Alias::distance distance;
 };
 
 class GraphAlgorithms {
@@ -57,18 +58,19 @@ class GraphAlgorithms {
 
 class Ant {
  public:
-  Ant() : start_vertex_{0} {}
-  explicit Ant(unsigned a_start_vertex) : start_vertex_{a_start_vertex} {}
+  explicit Ant(const size_t a_start_vertex = 0)
+      : start_vertex_{a_start_vertex} {}
   ~Ant() = default;
 
-  double mark_pheromone();
-  double transition_probability(unsigned a_current_vertex, unsigned a_neighbor);
-  double random_destination();
+  double mark_pheromone();  ///< Пометить путь феромоном
+
+  double random_destination();  ///< Сгенерированная случайная величина для
+                                ///< выбора соседа
 
  private:
   TsmResult ant_path_;  //   Alias::IntRow vertices; double distance;
-  unsigned start_vertex_;
-  unsigned current_vertex_;
+  size_t start_vertex_;
+  size_t current_vertex_;
   bool is_available_next_step_;
 };
 
@@ -77,8 +79,31 @@ class AntHill {
   AntHill(const Graph& a_graph);
   ~AntHill() = default;
 
+  double ant_transition_probability(
+      const size_t a_current_vertex, const size_t a_neighbor,
+      const double a_pheromone_value);  ///< Вероятность перемещения к соседу
+
+  void set_alpha_pheromone_weight(const double a_value) {
+    alpha_pheromone_weight_ = a_value;
+  }
+  void set_beta_distance_weight_(const double a_value) {
+    beta_distance_weight_ = a_value;
+  }
+  void set_q_regulation_parameter_(const double a_value) {
+    q_regulation_parameter_ = a_value;
+  }
+  void set_p_pheromone_evaporation_coef(const double a_value) {
+    p_pheromone_evaporation_coef = a_value;
+  }
+  void set_start_pheromone_(const double a_value) {
+    start_pheromone_ = a_value;
+  }
+
  private:
+  Graph graph_;
+  Alias::PheromoneGrid pheromone_matrix_;
   std::vector<Ant> ant_squad_;
+  size_t anthill_size_;
   double alpha_pheromone_weight_ = 1.0;  ///< from 0 to 1. 0 - greedy algo
   double beta_distance_weight_ = 2.0;    ///< from ?? to ??
   double q_regulation_parameter_ =
@@ -87,6 +112,9 @@ class AntHill {
   ///< of greedy algo - for big and scary graphs
   double p_pheromone_evaporation_coef =
       0.1;  ///< small value - the same paths, big value - fast and boring paths
+  double start_pheromone_ = 1.0;
+
+  void prepare_ants();
 };
 
 #include "s21_graph_algorithms.tpp"

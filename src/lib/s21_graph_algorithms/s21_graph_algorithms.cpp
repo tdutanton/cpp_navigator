@@ -194,3 +194,28 @@ int GraphAlgorithms::GetSpanTreeWeight(const Graph& graph) {
   auto [matrix, weight] = GetSpanTree(graph);
   return weight;
 }
+
+double Ant::random_destination() {
+  std::random_device seed;
+  std::mt19937 gen(seed);
+  std::uniform_real_distribution<double> dist(0.0, 1.0);
+  double result = dist(gen);
+  return result;
+}
+
+AntHill::AntHill(const Graph& a_graph) : graph_{a_graph} {
+  anthill_size_ = graph_.get_graph_size();
+  pheromone_matrix_ = Alias::PheromoneGrid(
+      anthill_size_, std::vector<double>(anthill_size_, start_pheromone_));
+  for (size_t i = 0; i < anthill_size_; i++) {
+    for (size_t j = 0; j < anthill_size_; j++) {
+      if (i == j) pheromone_matrix_[i][j] = 0;
+    }
+  }
+}
+
+void AntHill::prepare_ants() {
+  for (size_t i = 0; i < anthill_size_; i++) {
+    ant_squad_[i] = Ant(i);
+  }
+}
