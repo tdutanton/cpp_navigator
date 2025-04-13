@@ -220,9 +220,9 @@ void AntHill::prepare_ants() {
   }
 }
 
-Alias::NodesPath Ant::get_available_neighbors(const Graph& a_graph) {
+std::vector<size_t> Ant::get_available_neighbors(const Graph& a_graph) const {
   const size_t size = a_graph.get_graph_size();
-  Alias::NodesPath result;
+  std::vector<size_t> result;
   for (size_t i_neigh = 0; i_neigh < size; i_neigh++) {
     bool is_neighbor_exists =
         (a_graph[current_vertex_][i_neigh] != 0) ? true : false;
@@ -230,4 +230,35 @@ Alias::NodesPath Ant::get_available_neighbors(const Graph& a_graph) {
     if (is_neighbor_exists && is_neighbor_strange) result.push_back(i_neigh);
   }
   return result;
+}
+
+double AntHill::greepy_part(const Ant& a_ant, const size_t a_neighbor) const {
+  return pow(1 / graph_[a_ant.get_current_vertex()][a_neighbor],
+             beta_distance_weight_);
+}
+
+double AntHill::herd_part(const Ant& a_ant, const size_t a_neighbor) const {
+  return pow(pheromone_matrix_[a_ant.get_current_vertex()][a_neighbor],
+             alpha_pheromone_weight_);
+}
+
+double AntHill::ant_desire_to_neighbor(const Ant& a_ant,
+                                       const size_t a_neighbor) const {
+  return greepy_part(a_ant, a_neighbor) * herd_part(a_ant, a_neighbor);
+}
+
+double AntHill::ant_transition_probability(const Ant& a_ant,
+                                           const size_t a_neighbor) {
+  std::vector<size_t> ant_good_neighbors =
+      a_ant.get_available_neighbors(graph_);
+  double ant_desire_to_j = ant_desire_to_neighbor(a_ant, a_neighbor);
+  double ant_summary_desire{0};
+  for (const auto& vertex : ant_good_neighbors) {
+    ant_summary_desire += ant_desire_to_neighbor(a_ant, vertex);
+  }
+  return ant_desire_to_j / ant_summary_desire;
+}
+
+double Ant::pheromone_to_add(const AntHill& a_hill) const {
+  return a_hill.get_q_regulation_parameter() / ant_path_.distance;
 }

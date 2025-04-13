@@ -63,12 +63,12 @@ class Ant {
       : start_vertex_{a_start_vertex} {}
   ~Ant() = default;
 
-  Alias::NodesPath get_available_neighbors(
-      const Graph&
-          a_graph);  ///< Get vector of available vertices for ant journey (if
-                     ///< path == 0 and if neighbor was visited)
+  std::vector<size_t> get_available_neighbors(const Graph& a_graph)
+      const;  ///< Get vector of available vertices for ant journey (if
+  ///< path == 0 and if neighbor was visited)
 
-  double mark_pheromone();  ///< Пометить путь феромоном
+  double mark_pheromone(
+      const AntHill& a_hill) const;  ///< Пометить путь феромоном
 
   double random_destination();  ///< Сгенерированная случайная величина для
                                 ///< выбора соседа
@@ -87,6 +87,8 @@ class Ant {
     return visited_vertices_.count(vertex) == 0;
   }
 
+  size_t get_current_vertex() const { return current_vertex_; }
+
  private:
   size_t start_vertex_;
   size_t current_vertex_;
@@ -102,9 +104,16 @@ class AntHill {
   AntHill(const Graph& a_graph);
   ~AntHill() = default;
 
+  double greepy_part(const Ant& a_ant, const size_t a_neighbor) const;
+
+  double herd_part(const Ant& a_ant, const size_t a_neighbor) const;
+
+  double ant_desire_to_neighbor(const Ant& a_ant,
+                                const size_t a_neighbor) const;
+
   double ant_transition_probability(
-      const size_t a_current_vertex, const size_t a_neighbor,
-      const double a_pheromone_value);  ///< Вероятность перемещения к соседу
+      const Ant& a_ant,
+      const size_t a_neighbor);  ///< Вероятность перемещения к соседу
 
   void set_alpha_pheromone_weight(const double a_value) {
     alpha_pheromone_weight_ = a_value;
@@ -121,6 +130,14 @@ class AntHill {
   void set_start_pheromone_(const double a_value) {
     start_pheromone_ = a_value;
   }
+
+  double get_alpha_pheromone_weight() const { return alpha_pheromone_weight_; }
+  double get_beta_distance_weight() const { return beta_distance_weight_; }
+  double get_q_regulation_parameter() const { return q_regulation_parameter_; }
+  double get_p_pheromone_evaporation_coef() const {
+    return p_pheromone_evaporation_coef;
+  }
+  double get_start_pheromone() const { return start_pheromone_; }
 
  private:
   Graph graph_;
