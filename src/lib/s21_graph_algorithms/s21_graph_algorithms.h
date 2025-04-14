@@ -67,14 +67,9 @@ class Ant {
       const;  ///< Get vector of available vertices for ant journey (if
   ///< path == 0 and if neighbor was visited)
 
-  double mark_pheromone(
-      const AntHill& a_hill) const;  ///< Пометить путь феромоном
-
   double pheromone_to_add(
       const double a_parameter) const;  ///< Сколько феромона оставляем на пути
 
-  double random_destination();  ///< Сгенерированная случайная величина для
-                                ///< выбора соседа
   TsmResult get_ant_path_result() const { return ant_path_; }
 
   bool is_vertex_visited(const size_t a_vertex) const {
@@ -121,7 +116,12 @@ class AntHill {
       const Ant& a_ant,
       const size_t a_neighbor);  ///< Вероятность перемещения к соседу
 
+  double random_destination();  ///< Сгенерированная случайная величина для
+                                ///< выбора соседа
+
   void update_pheromone(const Ant& a_ant);
+
+  size_t choose_next_vertex(const Ant& a_ant);
 
   void set_alpha_pheromone_weight(const double a_value) {
     alpha_pheromone_weight_ = a_value;

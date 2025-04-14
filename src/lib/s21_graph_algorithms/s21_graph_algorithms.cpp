@@ -195,7 +195,7 @@ int GraphAlgorithms::GetSpanTreeWeight(const Graph& graph) {
   return weight;
 }
 
-double Ant::random_destination() {
+double AntHill::random_destination() {
   std::random_device seed;
   std::mt19937 gen(seed);
   std::uniform_real_distribution<double> dist(0.0, 1.0);
@@ -279,3 +279,33 @@ void AntHill::update_pheromone(const Ant& a_ant) {
     pheromone_matrix_[from][to] += delta_pheromone;
   }
 }
+
+size_t AntHill::choose_next_vertex(const Ant& a_ant) {
+  std::vector<size_t> available_neighbors =
+      a_ant.get_available_neighbors(graph_);
+  std::vector<double> probabilities;
+  for (const auto& neighbor : available_neighbors) {
+    probabilities.emplace_back(ant_transition_probability(a_ant, neighbor));
+  }
+  double random = random_destination();
+  double summary_probability{0.0};
+  for (size_t i = 0; i < available_neighbors.size(); i++) {
+    summary_probability += probabilities[i];
+    if (random <= summary_probability) return available_neighbors[i];
+  }
+  /*     // На случай ошибок округления вернём последнюю вершину
+    return available_neighbors.back(); */
+}
+
+/* void AntHill::run_ant_colony() {
+    for (int iteration = 0; iteration < max_iterations_; ++iteration) {
+        for (Ant& ant : ants_) {
+            while (!ant.has_visited_all_vertices()) {
+                size_t next_vertex = choose_next_vertex(ant); // или
+choose_next_vertex_acs() ant.move_to_vertex(next_vertex);
+            }
+            update_pheromone(ant); // Обновляем феромоны после прохождения
+муравья
+        }
+    }
+} */
