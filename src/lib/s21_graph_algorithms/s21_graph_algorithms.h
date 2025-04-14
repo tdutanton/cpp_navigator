@@ -70,6 +70,9 @@ class Ant {
   double mark_pheromone(
       const AntHill& a_hill) const;  ///< Пометить путь феромоном
 
+  double pheromone_to_add(
+      const double a_parameter) const;  ///< Сколько феромона оставляем на пути
+
   double random_destination();  ///< Сгенерированная случайная величина для
                                 ///< выбора соседа
   TsmResult get_ant_path_result() const { return ant_path_; }
@@ -104,16 +107,21 @@ class AntHill {
   AntHill(const Graph& a_graph);
   ~AntHill() = default;
 
-  double greepy_part(const Ant& a_ant, const size_t a_neighbor) const;
+  double greepy_part(const Ant& a_ant,
+                     const size_t a_neighbor) const;  ///< Жадность
 
-  double herd_part(const Ant& a_ant, const size_t a_neighbor) const;
+  double herd_part(const Ant& a_ant,
+                   const size_t a_neighbor) const;  ///< Стадность
 
-  double ant_desire_to_neighbor(const Ant& a_ant,
-                                const size_t a_neighbor) const;
+  double ant_desire_to_neighbor(
+      const Ant& a_ant,
+      const size_t a_neighbor) const;  ///< Желание муравья идти в соседний узел
 
   double ant_transition_probability(
       const Ant& a_ant,
       const size_t a_neighbor);  ///< Вероятность перемещения к соседу
+
+  void update_pheromone(const Ant& a_ant);
 
   void set_alpha_pheromone_weight(const double a_value) {
     alpha_pheromone_weight_ = a_value;
@@ -125,7 +133,7 @@ class AntHill {
     q_regulation_parameter_ = a_value;
   }
   void set_p_pheromone_evaporation_coef(const double a_value) {
-    p_pheromone_evaporation_coef = a_value;
+    p_pheromone_evaporation_coef_ = a_value;
   }
   void set_start_pheromone_(const double a_value) {
     start_pheromone_ = a_value;
@@ -135,7 +143,7 @@ class AntHill {
   double get_beta_distance_weight() const { return beta_distance_weight_; }
   double get_q_regulation_parameter() const { return q_regulation_parameter_; }
   double get_p_pheromone_evaporation_coef() const {
-    return p_pheromone_evaporation_coef;
+    return p_pheromone_evaporation_coef_;
   }
   double get_start_pheromone() const { return start_pheromone_; }
 
@@ -150,7 +158,7 @@ class AntHill {
       100.0;  ///< parameter for get good speed of algorithm. 1 - for small
   ///< graphs, 100 - default value for most of graphs, Lko - length
   ///< of greedy algo - for big and scary graphs
-  double p_pheromone_evaporation_coef =
+  double p_pheromone_evaporation_coef_ =
       0.1;  ///< small value - the same paths, big value - fast and boring paths
   double start_pheromone_ = 1.0;
 

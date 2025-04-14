@@ -259,6 +259,23 @@ double AntHill::ant_transition_probability(const Ant& a_ant,
   return ant_desire_to_j / ant_summary_desire;
 }
 
-double Ant::pheromone_to_add(const AntHill& a_hill) const {
-  return a_hill.get_q_regulation_parameter() / ant_path_.distance;
+double Ant::pheromone_to_add(const double a_parameter) const {
+  return ant_path_.vertices.empty() ? 0.0 : a_parameter / ant_path_.distance;
+}
+
+void AntHill::update_pheromone(const Ant& a_ant) {
+  for (size_t i = 0; i < anthill_size_; i++) {
+    for (size_t j = 0; j < anthill_size_; j++) {
+      pheromone_matrix_[i][j] *= (1 - p_pheromone_evaporation_coef_);
+    }
+  }
+  const auto& ant_path_edges = a_ant.get_ant_path_result().vertices;
+  const double delta_pheromone =
+      a_ant.pheromone_to_add(q_regulation_parameter_);
+
+  for (size_t i = 1; i < ant_path_edges.size(); i++) {
+    size_t from = ant_path_edges[i - 1];
+    size_t to = ant_path_edges[i];
+    pheromone_matrix_[from][to] += delta_pheromone;
+  }
 }
