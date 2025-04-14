@@ -197,7 +197,7 @@ int GraphAlgorithms::GetSpanTreeWeight(const Graph& graph) {
 
 double AntHill::random_destination() {
   std::random_device seed;
-  std::mt19937 gen(seed);
+  std::mt19937 gen(seed());
   std::uniform_real_distribution<double> dist(0.0, 1.0);
   double result = dist(gen);
   return result;
@@ -215,6 +215,7 @@ AntHill::AntHill(const Graph& a_graph) : graph_{a_graph} {
 }
 
 void AntHill::prepare_ants() {
+  ant_squad_.resize(anthill_size_);
   for (size_t i = 0; i < anthill_size_; i++) {
     ant_squad_[i] = Ant(i);
   }
@@ -283,29 +284,57 @@ void AntHill::update_pheromone(const Ant& a_ant) {
 size_t AntHill::choose_next_vertex(const Ant& a_ant) {
   std::vector<size_t> available_neighbors =
       a_ant.get_available_neighbors(graph_);
+
+  if (available_neighbors.empty()) {
+    return a_ant.get_current_vertex();
+  }
+
   std::vector<double> probabilities;
   for (const auto& neighbor : available_neighbors) {
     probabilities.emplace_back(ant_transition_probability(a_ant, neighbor));
   }
+
   double random = random_destination();
   double summary_probability{0.0};
   for (size_t i = 0; i < available_neighbors.size(); i++) {
     summary_probability += probabilities[i];
     if (random <= summary_probability) return available_neighbors[i];
   }
-  /*     // На случай ошибок округления вернём последнюю вершину
-    return available_neighbors.back(); */
+
+  return available_neighbors.back();
 }
 
-/* void AntHill::run_ant_colony() {
-    for (int iteration = 0; iteration < max_iterations_; ++iteration) {
-        for (Ant& ant : ants_) {
-            while (!ant.has_visited_all_vertices()) {
-                size_t next_vertex = choose_next_vertex(ant); // или
-choose_next_vertex_acs() ant.move_to_vertex(next_vertex);
-            }
-            update_pheromone(ant); // Обновляем феромоны после прохождения
-муравья
+void AntHill::run_ant_colony() {
+  prepare_ants();
+
+  for (int iteration = 0; iteration < anthill_size_; ++iteration) {
+    for (Ant& ant : ant_squad_) {
+      while (true) {
+        size_t next_vertex = choose_next_vertex(ant);
+        if (ant.is_vertex_visited(next_vertex)) {
+          break;
         }
+        ant.visit_vertex(graph_, next_vertex);
+        if (ant.get_ant_path_result().vertices.size() == anthill_size_) {
+          size_t start = ant.get_ant_path_result().vertices.front();
+          ant.visit_vertex(graph_, start);  // замыкаем цикл
+        }
+      }
+      update_pheromone(ant);
     }
-} */
+  }
+}
+
+TsmResult AntHill::solve_salesman_graph() {
+  run_ant_colony();
+  TsmResult result = ant_squad_[0].get_ant_path_result();
+  for (const auto& ant : ant_squad_) {
+    const auto& res = ant.get_ant_path_result();
+    if (res.vertices.size() == anthill_size_ + 1 &&
+        res.distance < result.distance) {
+      result = res;
+    }
+  }
+
+  return result;
+}

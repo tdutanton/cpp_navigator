@@ -60,7 +60,7 @@ class GraphAlgorithms {
 class Ant {
  public:
   explicit Ant(const size_t a_start_vertex = 0)
-      : start_vertex_{a_start_vertex} {}
+      : start_vertex_{a_start_vertex}, current_vertex_(a_start_vertex) {}
   ~Ant() = default;
 
   std::vector<size_t> get_available_neighbors(const Graph& a_graph)
@@ -76,9 +76,14 @@ class Ant {
     return visited_vertices_.find(a_vertex) != visited_vertices_.end();
   }
 
-  void visit_vertex(const size_t a_vertex) {
-    journey_history_.push_back(a_vertex);
-    visited_vertices_.insert(a_vertex);
+  void visit_vertex(const Graph& a_graph, const size_t vertex) {
+    if (!ant_path_.vertices.empty()) {
+      // Добавляем расстояние от предыдущей вершины к новой
+      ant_path_.distance += a_graph[current_vertex_][vertex];
+    }
+    current_vertex_ = vertex;
+    ant_path_.vertices.push_back(vertex);
+    visited_vertices_.insert(vertex);
   }
 
   bool is_vertex_unvisited(const size_t vertex) const {
@@ -86,15 +91,16 @@ class Ant {
   }
 
   size_t get_current_vertex() const { return current_vertex_; }
+  size_t get_start_vertex() const { return start_vertex_; }
 
  private:
   size_t start_vertex_;
   size_t current_vertex_;
-  bool is_available_next_step_;
+  bool is_available_next_step_ = true;
   std::unordered_set<size_t>
       visited_vertices_;  ///< For quick search in is_vertex_unvisited
   Alias::NodesPath journey_history_;
-  TsmResult ant_path_;  //   Alias::IntRow vertices; double distance;
+  TsmResult ant_path_ = {};  //   Alias::IntRow vertices; double distance;
 };
 
 class AntHill {
@@ -123,6 +129,10 @@ class AntHill {
 
   size_t choose_next_vertex(const Ant& a_ant);
 
+  void run_ant_colony();
+
+  TsmResult solve_salesman_graph();
+
   void set_alpha_pheromone_weight(const double a_value) {
     alpha_pheromone_weight_ = a_value;
   }
@@ -146,21 +156,22 @@ class AntHill {
     return p_pheromone_evaporation_coef_;
   }
   double get_start_pheromone() const { return start_pheromone_; }
+  size_t get_anthill_size() const { return anthill_size_; }
 
  private:
   Graph graph_;
   Alias::PheromoneGrid pheromone_matrix_;
   std::vector<Ant> ant_squad_;
   size_t anthill_size_;
-  double alpha_pheromone_weight_ = 1.0;  ///< from 0 to 1. 0 - greedy algo
-  double beta_distance_weight_ = 2.0;    ///< from ?? to ??
+  double alpha_pheromone_weight_ = 10.0;  ///< from 0 to 1. 0 - greedy algo
+  double beta_distance_weight_ = 0.01;    ///< from ?? to ??
   double q_regulation_parameter_ =
       100.0;  ///< parameter for get good speed of algorithm. 1 - for small
   ///< graphs, 100 - default value for most of graphs, Lko - length
   ///< of greedy algo - for big and scary graphs
   double p_pheromone_evaporation_coef_ =
-      0.1;  ///< small value - the same paths, big value - fast and boring paths
-  double start_pheromone_ = 1.0;
+      0.3;  ///< small value - the same paths, big value - fast and boring paths
+  double start_pheromone_ = 100.0;
 
   void prepare_ants();
 };
