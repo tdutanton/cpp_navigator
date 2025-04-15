@@ -7,7 +7,7 @@
 
 namespace Alias {
 using distance = unsigned;
-using node_index = unsigned;
+using node_index = size_t;
 using NodesPath = std::vector<node_index>;
 using IntRow = std::vector<int>;
 using IntGrid = std::vector<IntRow>;

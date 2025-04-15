@@ -195,7 +195,31 @@ int GraphAlgorithms::GetSpanTreeWeight(const Graph& graph) {
   return weight;
 }
 
-double AntHill::random_destination() {
+Ant::Ant(const Alias::node_index a_start_vertex = 0)
+    : start_vertex_{a_start_vertex}, current_vertex_(a_start_vertex) {
+  visited_vertices_ = {};
+  ant_path_ = {};
+}
+
+bool Ant::is_vertex_visited(const Alias::node_index a_vertex) const {
+  return visited_vertices_.find(a_vertex) != visited_vertices_.end();
+}
+
+bool Ant::is_vertex_unvisited(const Alias::node_index a_vertex) const {
+  return visited_vertices_.count(a_vertex) == 0;
+}
+
+void Ant::visit_vertex(const Graph& a_graph, const Alias::node_index a_vertex) {
+  if (!ant_path_.vertices.empty()) {
+    // Добавляем расстояние от предыдущей вершины к новой
+    ant_path_.distance += a_graph[current_vertex_][a_vertex];
+  }
+  current_vertex_ = a_vertex;
+  ant_path_.vertices.push_back(a_vertex);
+  visited_vertices_.insert(a_vertex);
+}
+
+double AntHill::random_destination() const {
   std::random_device seed;
   std::mt19937 gen(seed());
   std::uniform_real_distribution<double> dist(0.0, 1.0);
@@ -223,7 +247,8 @@ void AntHill::prepare_ants() {
   }
 }
 
-std::vector<size_t> Ant::get_available_neighbors(const Graph& a_graph) const {
+std::vector<Alias::node_index> Ant::get_available_neighbors(
+    const Graph& a_graph) const {
   const size_t size = a_graph.get_graph_size();
   std::vector<size_t> result;
   for (size_t i_neigh = 0; i_neigh < size; i_neigh++) {
@@ -235,24 +260,30 @@ std::vector<size_t> Ant::get_available_neighbors(const Graph& a_graph) const {
   return result;
 }
 
-double AntHill::greepy_part(const Ant& a_ant, const size_t a_neighbor) const {
-  return pow(1 / graph_[a_ant.get_current_vertex()][a_neighbor],
-             beta_distance_weight_);
+double AntHill::greepy_part(const Ant& a_ant,
+                            const Alias::node_index a_neighbor) const {
+  double weight = graph_[a_ant.get_current_vertex()][a_neighbor];
+  if (weight <= 0) return 0.0;  // или какое-то минимальное значение
+  return pow(1.0 / weight, beta_distance_weight_);
 }
 
-double AntHill::herd_part(const Ant& a_ant, const size_t a_neighbor) const {
+double AntHill::herd_part(const Ant& a_ant,
+                          const Alias::node_index a_neighbor) const {
   return pow(pheromone_matrix_[a_ant.get_current_vertex()][a_neighbor],
              alpha_pheromone_weight_);
 }
 
-double AntHill::ant_desire_to_neighbor(const Ant& a_ant,
-                                       const size_t a_neighbor) const {
-  return greepy_part(a_ant, a_neighbor) * herd_part(a_ant, a_neighbor);
+double AntHill::ant_desire_to_neighbor(
+    const Ant& a_ant, const Alias::node_index a_neighbor) const {
+  double greedy = greepy_part(a_ant, a_neighbor);
+  double herd = herd_part(a_ant, a_neighbor);
+  // std::cout << "Greedy: " << greedy << ", Herd: " << herd << std::endl;
+  return greedy * herd;
 }
 
-double AntHill::ant_transition_probability(const Ant& a_ant,
-                                           const size_t a_neighbor) {
-  std::vector<size_t> ant_good_neighbors =
+double AntHill::ant_transition_probability(
+    const Ant& a_ant, const Alias::node_index a_neighbor) const {
+  std::vector<Alias::node_index> ant_good_neighbors =
       a_ant.get_available_neighbors(graph_);
   double ant_desire_to_j = ant_desire_to_neighbor(a_ant, a_neighbor);
   double ant_summary_desire{0};
@@ -283,28 +314,25 @@ void AntHill::update_pheromone(const Ant& a_ant) {
   }
 }
 
-size_t AntHill::choose_next_vertex(const Ant& a_ant) {
+size_t AntHill::choose_next_vertex(const Ant& a_ant) const {
   auto available_neighbors = a_ant.get_available_neighbors(graph_);
   if (available_neighbors.empty()) return a_ant.get_current_vertex();
-
   // Вычисляем вероятности для всех доступных соседей
   std::vector<double> probabilities;
   double total = 0.0;
   for (size_t neighbor : available_neighbors) {
     double desire = ant_desire_to_neighbor(a_ant, neighbor);
     probabilities.push_back(desire);
-    total += desire;
   }
-
   // Нормализуем вероятности
   if (total > 0) {
+    std::cout << "HERE ";
     for (auto& p : probabilities) p /= total;
   } else {
     // Если все желания нулевые, выбираем случайно
     std::fill(probabilities.begin(), probabilities.end(),
               1.0 / probabilities.size());
   }
-
   // Рулеточный выбор
   double r = random_destination();
   double sum = 0.0;
@@ -312,14 +340,13 @@ size_t AntHill::choose_next_vertex(const Ant& a_ant) {
     sum += probabilities[i];
     if (r <= sum) return available_neighbors[i];
   }
-
   return available_neighbors.back();
 }
 
 void AntHill::run_ant_colony() {
   prepare_ants();
 
-  for (int iteration = 0; iteration < anthill_size_; ++iteration) {
+  for (size_t iteration = 0; iteration < anthill_size_; ++iteration) {
     // Сначала все муравьи строят пути
     for (Ant& ant : ant_squad_) {
       while (true) {
@@ -329,7 +356,6 @@ void AntHill::run_ant_colony() {
           break;
         }
         ant.visit_vertex(graph_, next_vertex);
-
         // Замыкаем цикл, если прошли все вершины
         if (ant.get_ant_path_result().vertices.size() == anthill_size_) {
           size_t start = ant.get_ant_path_result().vertices.front();
@@ -338,7 +364,7 @@ void AntHill::run_ant_colony() {
       }
     }
 
-    // Затем обновляем феромоны на всех путях
+    // обновляем феромоны на всех путях
     for (Ant& ant : ant_squad_) {
       update_pheromone(ant);
     }
@@ -357,4 +383,9 @@ TsmResult AntHill::solve_salesman_graph() {
   }
 
   return result;
+}
+
+TsmResult GraphAlgorithms::SolveTravelingSalesmanProblem(const Graph& graph) {
+  AntHill anthill(graph);
+  return anthill.solve_salesman_graph();
 }
