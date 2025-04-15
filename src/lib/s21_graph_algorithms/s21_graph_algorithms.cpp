@@ -209,7 +209,9 @@ AntHill::AntHill(const Graph& a_graph) : graph_{a_graph} {
       anthill_size_, std::vector<double>(anthill_size_, start_pheromone_));
   for (size_t i = 0; i < anthill_size_; i++) {
     for (size_t j = 0; j < anthill_size_; j++) {
-      if (i == j) pheromone_matrix_[i][j] = 0;
+      if (i != j && graph_[i][j] > 0) {
+        pheromone_matrix_[i][j] = start_pheromone_;
+      }
     }
   }
 }
@@ -282,23 +284,33 @@ void AntHill::update_pheromone(const Ant& a_ant) {
 }
 
 size_t AntHill::choose_next_vertex(const Ant& a_ant) {
-  std::vector<size_t> available_neighbors =
-      a_ant.get_available_neighbors(graph_);
+  auto available_neighbors = a_ant.get_available_neighbors(graph_);
+  if (available_neighbors.empty()) return a_ant.get_current_vertex();
 
-  if (available_neighbors.empty()) {
-    return a_ant.get_current_vertex();
-  }
-
+  // Вычисляем вероятности для всех доступных соседей
   std::vector<double> probabilities;
-  for (const auto& neighbor : available_neighbors) {
-    probabilities.emplace_back(ant_transition_probability(a_ant, neighbor));
+  double total = 0.0;
+  for (size_t neighbor : available_neighbors) {
+    double desire = ant_desire_to_neighbor(a_ant, neighbor);
+    probabilities.push_back(desire);
+    total += desire;
   }
 
-  double random = random_destination();
-  double summary_probability{0.0};
-  for (size_t i = 0; i < available_neighbors.size(); i++) {
-    summary_probability += probabilities[i];
-    if (random <= summary_probability) return available_neighbors[i];
+  // Нормализуем вероятности
+  if (total > 0) {
+    for (auto& p : probabilities) p /= total;
+  } else {
+    // Если все желания нулевые, выбираем случайно
+    std::fill(probabilities.begin(), probabilities.end(),
+              1.0 / probabilities.size());
+  }
+
+  // Рулеточный выбор
+  double r = random_destination();
+  double sum = 0.0;
+  for (size_t i = 0; i < available_neighbors.size(); ++i) {
+    sum += probabilities[i];
+    if (r <= sum) return available_neighbors[i];
   }
 
   return available_neighbors.back();
@@ -308,18 +320,26 @@ void AntHill::run_ant_colony() {
   prepare_ants();
 
   for (int iteration = 0; iteration < anthill_size_; ++iteration) {
+    // Сначала все муравьи строят пути
     for (Ant& ant : ant_squad_) {
       while (true) {
         size_t next_vertex = choose_next_vertex(ant);
-        if (ant.is_vertex_visited(next_vertex)) {
+        if (next_vertex == ant.get_current_vertex() ||
+            ant.is_vertex_visited(next_vertex)) {
           break;
         }
         ant.visit_vertex(graph_, next_vertex);
+
+        // Замыкаем цикл, если прошли все вершины
         if (ant.get_ant_path_result().vertices.size() == anthill_size_) {
           size_t start = ant.get_ant_path_result().vertices.front();
           ant.visit_vertex(graph_, start);  // замыкаем цикл
         }
       }
+    }
+
+    // Затем обновляем феромоны на всех путях
+    for (Ant& ant : ant_squad_) {
       update_pheromone(ant);
     }
   }

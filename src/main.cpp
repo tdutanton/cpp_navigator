@@ -1,6 +1,28 @@
 #include "cli.h"
 
 int main() {
+  Graph g = Graph::LoadGraphFromFile("gr.txt");
+  AntHill hill = AntHill(g);
+
+  TsmResult res = hill.solve_salesman_graph();
+
+  std::cout << res.distance << std::endl;
+  for (const auto& i : res.vertices) {
+    std::cout << i << " ";
+  }
+  std::cout << std::endl;
+
+  std::sort(res.vertices.begin(), res.vertices.end());
+
+  for (const auto& i : res.vertices) {
+    std::cout << i << " ";
+  }
+  std::cout << std::endl;
+
+  return 0;
+}
+
+/* int main() {
   MenuPair menu_labels = make_menu_points();
   Graph graph(0);
   int size{0};
@@ -39,7 +61,7 @@ int main() {
     }
   }
   return 0;
-}
+} */
 
 /* int main() {
   Graph res = Graph::LoadGraphFromFile("gr.txt");

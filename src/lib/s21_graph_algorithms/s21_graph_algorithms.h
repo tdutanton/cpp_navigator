@@ -163,15 +163,15 @@ class AntHill {
   Alias::PheromoneGrid pheromone_matrix_;
   std::vector<Ant> ant_squad_;
   size_t anthill_size_;
-  double alpha_pheromone_weight_ = 10.0;  ///< from 0 to 1. 0 - greedy algo
-  double beta_distance_weight_ = 0.01;    ///< from ?? to ??
+  double alpha_pheromone_weight_ = 1.0;  ///< from 0 to 1. 0 - greedy algo
+  double beta_distance_weight_ = 2.0;    ///< from ?? to ??
   double q_regulation_parameter_ =
       100.0;  ///< parameter for get good speed of algorithm. 1 - for small
   ///< graphs, 100 - default value for most of graphs, Lko - length
   ///< of greedy algo - for big and scary graphs
   double p_pheromone_evaporation_coef_ =
-      0.3;  ///< small value - the same paths, big value - fast and boring paths
-  double start_pheromone_ = 100.0;
+      0.5;  ///< small value - the same paths, big value - fast and boring paths
+  double start_pheromone_ = 1.0;
 
   void prepare_ants();
 };
