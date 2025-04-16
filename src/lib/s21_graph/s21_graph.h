@@ -12,9 +12,10 @@ class FileReader;
 
 class Graph {
  public:
-  explicit Graph(size_t a_size)
+  explicit Graph(size_t a_size = 0)
       : graph_size_{a_size},
-        adjacency_matrix_{a_size, std::vector<int>(a_size, 0)} {}
+        adjacency_matrix_{a_size, std::vector<int>(a_size, 0)},
+        valid_graph_{false} {}
 
   Graph() = delete;
   ~Graph() = default;
@@ -29,9 +30,6 @@ class Graph {
   const Alias::IntRow& operator[](size_t row) const {
     return adjacency_matrix_[row];
   }
-  void export_config_txt(std::ofstream& a_file);
-  void export_node_line_txt(std::ofstream& a_file, unsigned& a_i_node_number,
-                            size_t a_row, size_t a_col);
 
 #ifdef TEST
  public:
@@ -40,6 +38,10 @@ class Graph {
 #endif
   size_t graph_size_;
   Alias::IntGrid adjacency_matrix_;
+  bool valid_graph_;
+  void export_config_txt(std::ofstream& a_file);
+  void export_node_line_txt(std::ofstream& a_file, unsigned& a_i_node_number,
+                            size_t a_row, size_t a_col);
 };
 
 std::ostream& operator<<(std::ostream& os, const Graph& graph);

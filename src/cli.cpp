@@ -59,8 +59,7 @@ void set_bfs(const Graph& a_graph, const int a_size) {
   new_line();
   int vertex{0};
   std::cin >> vertex;
-  std::vector<unsigned> result =
-      GraphAlgorithms::BreadthFirstSearch(a_graph, vertex);
+  auto result = GraphAlgorithms::BreadthFirstSearch(a_graph, vertex);
   print_string(Menu::ui_line);
   print_string(Menu::result_label);
   new_line();
@@ -77,8 +76,7 @@ void set_dfs(const Graph& a_graph, const int a_size) {
   new_line();
   int vertex{0};
   std::cin >> vertex;
-  std::vector<unsigned> result =
-      GraphAlgorithms::DepthFirstSearch(a_graph, vertex);
+  auto result = GraphAlgorithms::DepthFirstSearch(a_graph, vertex);
   print_string(Menu::ui_line);
   print_string(Menu::result_label);
   new_line();

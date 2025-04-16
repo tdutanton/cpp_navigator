@@ -141,7 +141,7 @@ Alias::IntGrid GraphAlgorithms::GetShortestPathsBetweenAllVertices(
 
 SpanTree GraphAlgorithms::GetSpanTree(const Graph& graph) {
   const size_t size = graph.get_graph_size();
-  // if (size == 0) !TODO
+  //! if (size == 0) //!TODO
   std::vector<bool> visited(size, false);
   std::vector<Alias::distance> distance_array(size, UINT_MAX);
   std::vector<int> prev_node(size, -1);
@@ -263,7 +263,7 @@ std::vector<Alias::node_index> Ant::get_available_neighbors(
 double AntHill::greepy_part(const Ant& a_ant,
                             const Alias::node_index a_neighbor) const {
   double weight = graph_[a_ant.get_current_vertex()][a_neighbor];
-  if (weight <= 0) return 0.0;  // или какое-то минимальное значение
+  if (weight <= 0) return 0.0;
   return pow(1.0 / weight, beta_distance_weight_);
 }
 
@@ -316,48 +316,33 @@ double AntHill::ant_transition_probability(
 size_t AntHill::choose_next_vertex(const Ant& a_ant) const {
   std::vector<size_t> available_neighbors =
       a_ant.get_available_neighbors(graph_);
-
   if (available_neighbors.empty()) {
     return a_ant.get_current_vertex();
   }
-
-  // Предварительный расчет вероятностей
   std::vector<double> probabilities;
   double sum_prob = 0.0;
   for (const auto& neighbor : available_neighbors) {
     double prob = ant_transition_probability(a_ant, neighbor);
     probabilities.push_back(prob);
-    std::cout << "prob = " << prob;
     sum_prob += prob;
   }
-  std::cout << std::endl;
-  std::cout << "sum_prob = " << sum_prob << " ";
-  std::cout << std::endl;
-
-  // Нормализация вероятностей (на случай sum_prob != 1.0)
   if (sum_prob <= 0.0) {
     // Если все вероятности нулевые - выбираем случайного соседа равновероятно
     size_t random_idx =
         static_cast<size_t>(rand()) % available_neighbors.size();
     return available_neighbors[random_idx];
   }
-
-  // Вероятностный выбор
-  double r = random_destination();  // Должно быть в [0, 1)
-  double cumulative_prob = 0.0;
-  for (size_t i = 0; i < available_neighbors.size(); ++i) {
-    cumulative_prob += probabilities[i] / sum_prob;
-    if (r <= cumulative_prob) {
-      return available_neighbors[i];
-    }
+  double random = random_destination();
+  double summary_probability{0.0};
+  for (size_t i = 0; i < available_neighbors.size(); i++) {
+    summary_probability += probabilities[i];
+    if (random <= summary_probability) return available_neighbors[i];
   }
-
-  return available_neighbors.back();  // fallback
+  return available_neighbors.back();
 }
 
 void AntHill::run_ant_colony() {
   prepare_ants();
-
   for (size_t iteration = 0; iteration < anthill_size_; ++iteration) {
     // Сначала все муравьи строят пути
     for (Ant& ant : ant_squad_) {
@@ -375,7 +360,6 @@ void AntHill::run_ant_colony() {
         }
       }
     }
-
     // обновляем феромоны на всех путях
     for (Ant& ant : ant_squad_) {
       update_pheromone(ant);
@@ -393,7 +377,6 @@ TsmResult AntHill::solve_salesman_graph() {
       result = res;
     }
   }
-
   return result;
 }
 

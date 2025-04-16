@@ -2,6 +2,7 @@
 #define FILEREADER_H
 
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -18,9 +19,9 @@ class FileReader {
   void close_file();
   size_t process_graph_size(const std::string& a_line);
   Alias::IntRow process_graph_line(const std::string& a_line);
-  Alias::IntGrid process_graph_grid(const std::string& a_filename);
+  Alias::IntGrid process_graph_grid();
 
-  void set_parsed_graph_size(const std::string& a_filename);
+  bool set_parsed_graph_size(const std::string& a_filename);
 
   size_t get_parsed_size() const { return size_parsed_; }
 

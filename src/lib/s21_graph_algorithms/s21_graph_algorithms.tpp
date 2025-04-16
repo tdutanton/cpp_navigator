@@ -13,7 +13,7 @@ Alias::NodesPath TraverseGraph(const Graph& a_graph, int a_start_vertex,
     return result;
   std::vector<bool> visited(size, false);
 
-  a_container.push(a_start_vertex);
+  a_container.push(a_start_vertex - 1);
 
   while (!a_container.empty()) {
     unsigned current_node;

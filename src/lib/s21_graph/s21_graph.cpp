@@ -1,18 +1,16 @@
 #include "s21_graph.h"
 
 Graph Graph::LoadGraphFromFile(const std::string& a_filename) {
-  try {
-    FileReader filereader;
-    filereader.set_parsed_graph_size(a_filename);
-    size_t size = filereader.get_parsed_size();
-    Graph result(size);
-    Alias::IntGrid matrix = filereader.process_graph_grid(a_filename);
+  FileReader filereader;
+  size_t size = 0;
+  Graph result(size);
+  if (filereader.set_parsed_graph_size(a_filename)) {
+    size = filereader.get_parsed_size();
+    result = Graph(size);
+    Alias::IntGrid matrix = filereader.process_graph_grid();
     result.adjacency_matrix_ = matrix;
-    return result;
-  } catch (const std::exception& e) {
-    std::cerr << "Error loading graph: " << e.what() << std::endl;
-    throw;
   }
+  return result;
 }
 
 void Graph::ExportGraphToDot(const std::string& a_filename) {
