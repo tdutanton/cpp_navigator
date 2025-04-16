@@ -327,8 +327,12 @@ size_t AntHill::choose_next_vertex(const Ant& a_ant) const {
   for (const auto& neighbor : available_neighbors) {
     double prob = ant_transition_probability(a_ant, neighbor);
     probabilities.push_back(prob);
+    std::cout << "prob = " << prob;
     sum_prob += prob;
   }
+  std::cout << std::endl;
+  std::cout << "sum_prob = " << sum_prob << " ";
+  std::cout << std::endl;
 
   // Нормализация вероятностей (на случай sum_prob != 1.0)
   if (sum_prob <= 0.0) {
