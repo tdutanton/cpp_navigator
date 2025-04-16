@@ -277,20 +277,7 @@ double AntHill::ant_desire_to_neighbor(
     const Ant& a_ant, const Alias::node_index a_neighbor) const {
   double greedy = greepy_part(a_ant, a_neighbor);
   double herd = herd_part(a_ant, a_neighbor);
-  // std::cout << "Greedy: " << greedy << ", Herd: " << herd << std::endl;
   return greedy * herd;
-}
-
-double AntHill::ant_transition_probability(
-    const Ant& a_ant, const Alias::node_index a_neighbor) const {
-  std::vector<Alias::node_index> ant_good_neighbors =
-      a_ant.get_available_neighbors(graph_);
-  double ant_desire_to_j = ant_desire_to_neighbor(a_ant, a_neighbor);
-  double ant_summary_desire{0};
-  for (const auto& vertex : ant_good_neighbors) {
-    ant_summary_desire += ant_desire_to_neighbor(a_ant, vertex);
-  }
-  return ant_desire_to_j / ant_summary_desire;
 }
 
 double Ant::pheromone_to_add(const double a_parameter) const {
@@ -314,33 +301,54 @@ void AntHill::update_pheromone(const Ant& a_ant) {
   }
 }
 
+double AntHill::ant_transition_probability(
+    const Ant& a_ant, const Alias::node_index a_neighbor) const {
+  std::vector<Alias::node_index> ant_good_neighbors =
+      a_ant.get_available_neighbors(graph_);
+  double ant_desire_to_j = ant_desire_to_neighbor(a_ant, a_neighbor);
+  double ant_summary_desire{0};
+  for (const auto& vertex : ant_good_neighbors) {
+    ant_summary_desire += ant_desire_to_neighbor(a_ant, vertex);
+  }
+  return ant_desire_to_j / ant_summary_desire;
+}
+
 size_t AntHill::choose_next_vertex(const Ant& a_ant) const {
-  auto available_neighbors = a_ant.get_available_neighbors(graph_);
-  if (available_neighbors.empty()) return a_ant.get_current_vertex();
-  // Вычисляем вероятности для всех доступных соседей
+  std::vector<size_t> available_neighbors =
+      a_ant.get_available_neighbors(graph_);
+
+  if (available_neighbors.empty()) {
+    return a_ant.get_current_vertex();
+  }
+
+  // Предварительный расчет вероятностей
   std::vector<double> probabilities;
-  double total = 0.0;
-  for (size_t neighbor : available_neighbors) {
-    double desire = ant_desire_to_neighbor(a_ant, neighbor);
-    probabilities.push_back(desire);
+  double sum_prob = 0.0;
+  for (const auto& neighbor : available_neighbors) {
+    double prob = ant_transition_probability(a_ant, neighbor);
+    probabilities.push_back(prob);
+    sum_prob += prob;
   }
-  // Нормализуем вероятности
-  if (total > 0) {
-    std::cout << "HERE ";
-    for (auto& p : probabilities) p /= total;
-  } else {
-    // Если все желания нулевые, выбираем случайно
-    std::fill(probabilities.begin(), probabilities.end(),
-              1.0 / probabilities.size());
+
+  // Нормализация вероятностей (на случай sum_prob != 1.0)
+  if (sum_prob <= 0.0) {
+    // Если все вероятности нулевые - выбираем случайного соседа равновероятно
+    size_t random_idx =
+        static_cast<size_t>(rand()) % available_neighbors.size();
+    return available_neighbors[random_idx];
   }
-  // Рулеточный выбор
-  double r = random_destination();
-  double sum = 0.0;
+
+  // Вероятностный выбор
+  double r = random_destination();  // Должно быть в [0, 1)
+  double cumulative_prob = 0.0;
   for (size_t i = 0; i < available_neighbors.size(); ++i) {
-    sum += probabilities[i];
-    if (r <= sum) return available_neighbors[i];
+    cumulative_prob += probabilities[i] / sum_prob;
+    if (r <= cumulative_prob) {
+      return available_neighbors[i];
+    }
   }
-  return available_neighbors.back();
+
+  return available_neighbors.back();  // fallback
 }
 
 void AntHill::run_ant_colony() {
