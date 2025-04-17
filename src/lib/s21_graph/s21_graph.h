@@ -25,6 +25,7 @@ class Graph {
 
   Alias::IntGrid get_graph_matrix() const { return adjacency_matrix_; }
   size_t get_graph_size() const { return graph_size_; }
+  bool is_valid_graph() const { return valid_graph_; }
 
   Alias::IntRow& operator[](size_t row) { return adjacency_matrix_[row]; }
   const Alias::IntRow& operator[](size_t row) const {

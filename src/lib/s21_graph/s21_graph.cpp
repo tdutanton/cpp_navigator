@@ -9,6 +9,7 @@ Graph Graph::LoadGraphFromFile(const std::string& a_filename) {
     result = Graph(size);
     Alias::IntGrid matrix = filereader.process_graph_grid();
     result.adjacency_matrix_ = matrix;
+    result.valid_graph_ = true;
   }
   return result;
 }
