@@ -4,6 +4,11 @@
 #include <iostream>
 #include <map>
 #include <string>
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 #include "lib/s21_graph/s21_graph.h"
 #include "lib/s21_graph_algorithms/s21_graph_algorithms.h"
@@ -52,7 +57,8 @@ static const std::string ants_shorts = "Traveling salesman problem";
 static const std::string exit = "Exit";
 static const std::string note = "**Numeration of vertices from 1**";
 static const std::string filename_welcome =
-    "Enter file path to file with adjacency matrix: ";
+    "Enter filename with path (if it's in other folder) to file with adjacency "
+    "matrix: ";
 static const std::string start_vertex_welcome =
     "Enter number of vertex - from 1 to ";
 static const std::string result_label = "Result: ";
@@ -76,14 +82,28 @@ void new_line();
 
 MenuPair make_menu_points();
 
+int get_choice(int max);
+
 void print_menu(MenuPair& a_menu);
 void print_short_menu(MenuPair& a_menu);
 
-void set_graph_from_file(Graph& a_graph, int& a_size);
+void print_current_graph_info(const std::string& a_filename,
+                              const Graph& a_graph);
+
+void set_graph_from_file(Graph& a_graph, int& a_size, std::string& a_filename);
 void set_bfs(const Graph& a_graph, const int a_size);
 void set_dfs(const Graph& a_graph, const int a_size);
 void set_dijkstra(const Graph& a_graph, const int a_size);
 void set_floyd(const Graph& a_graph);
 void set_tree(const Graph& a_graph);
+void set_ants(const Graph& a_graph);
 
+inline void clear_console() {
+#ifdef _WIN32
+  system("cls");
+#else
+  system("clear");
 #endif
+}
+
+#endif  // CLI_H

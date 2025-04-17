@@ -1,6 +1,6 @@
 #include "cli.h"
 
-int main() {
+/* int main() {
   Graph g = Graph::LoadGraphFromFile("gr.txt");
   AntHill hill = AntHill(g);
 
@@ -20,40 +20,61 @@ int main() {
   std::cout << std::endl;
 
   return 0;
-}
+} */
 
-/* int main() {
+int main() {
+  clear_console();
   MenuPair menu_labels = make_menu_points();
   Graph graph(0);
   int size{0};
+  std::string filename;
   int choice = -1;
   while (choice != static_cast<int>(USER_INPUT::EXIT)) {
     print_menu(menu_labels);
-    std::cin >> choice;
+    choice = get_choice(static_cast<int>(USER_INPUT::ANTS));
     USER_INPUT input = static_cast<USER_INPUT>(choice);
     switch (input) {
       case USER_INPUT::LOAD: {
-        set_graph_from_file(graph, size);
+        clear_console();
+        set_graph_from_file(graph, size, filename);
+        clear_console();
+        print_current_graph_info(filename, graph);
         break;
       }
       case USER_INPUT::BFS: {
+        clear_console();
+        print_current_graph_info(filename, graph);
         set_bfs(graph, size);
         break;
       }
       case USER_INPUT::DFS: {
+        clear_console();
+        print_current_graph_info(filename, graph);
         set_dfs(graph, size);
         break;
       }
       case USER_INPUT::DIJKSTRA: {
+        clear_console();
+        print_current_graph_info(filename, graph);
         set_dijkstra(graph, size);
         break;
       }
       case USER_INPUT::FLOYD: {
+        clear_console();
+        print_current_graph_info(filename, graph);
         set_floyd(graph);
         break;
       }
       case USER_INPUT::TREE: {
+        clear_console();
+        print_current_graph_info(filename, graph);
         set_tree(graph);
+        break;
+      }
+      case USER_INPUT::ANTS: {
+        clear_console();
+        print_current_graph_info(filename, graph);
+        set_ants(graph);
         break;
       }
       default:
@@ -61,7 +82,7 @@ int main() {
     }
   }
   return 0;
-} */
+}
 
 /* int main() {
   Graph res = Graph::LoadGraphFromFile("gr.txt");

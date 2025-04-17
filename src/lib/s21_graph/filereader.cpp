@@ -4,7 +4,6 @@ bool FileReader::open_file() {
   file_.open(filename_);
   if (!file_) {
     valid_file_ = false;
-    std::cerr << "Cannot open file: " << filename_ << '\n';
     return false;
   }
   return true;
@@ -28,8 +27,7 @@ size_t FileReader::process_graph_size(const std::string& a_line) {
         remaining.find_first_not_of(" \t") != std::string::npos)
       valid_file_ = false;
     if (result <= 1) valid_file_ = false;
-  } else
-    std::cerr << "First line parsing error" << '\n';
+  }
   return result;
 }
 
@@ -49,8 +47,7 @@ Alias::IntRow FileReader::process_graph_line(const std::string& a_line) {
       }
     }
     if (n_count != size_parsed_) valid_file_ = false;
-  } else
-    std::cerr << "process_graph_line Line parsing error" << '\n';
+  }
   return result;
 }
 
@@ -68,8 +65,7 @@ Alias::IntGrid FileReader::process_graph_grid() {
     }
     if (n_count != size_parsed_) valid_file_ = false;
     close_file();
-  } else
-    std::cerr << "process_graph_grid Line parsing error" << '\n';
+  }
   return result;
 }
 

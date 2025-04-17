@@ -2,23 +2,21 @@
 
 Graph Graph::LoadGraphFromFile(const std::string& a_filename) {
   FileReader filereader;
-  size_t size = 0;
-  Graph result(size);
-  if (filereader.set_parsed_graph_size(a_filename)) {
-    size = filereader.get_parsed_size();
-    result = Graph(size);
-    Alias::IntGrid matrix = filereader.process_graph_grid();
-    result.adjacency_matrix_ = matrix;
-    result.valid_graph_ = true;
+  if (!filereader.set_parsed_graph_size(a_filename)) {
+    throw std::invalid_argument("Cannot load graph from file: " + a_filename);
   }
+  const size_t size = filereader.get_parsed_size();
+  Graph result(size);
+  result.valid_graph_ = true;
+  Alias::IntGrid matrix = filereader.process_graph_grid();
+  result.adjacency_matrix_ = matrix;
   return result;
 }
 
 void Graph::ExportGraphToDot(const std::string& a_filename) {
   std::ofstream file(a_filename);
   if (!file) {
-    std::cerr << "Cannot write to file: " << a_filename << '\n';
-    return;
+    throw std::invalid_argument("Cannot write to file: " + a_filename);
   }
   export_config_txt(file);
   unsigned i_node_number = 1;
