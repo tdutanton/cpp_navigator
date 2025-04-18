@@ -25,7 +25,7 @@ int get_choice(int a_max) {
     std::cin >> choice;
     if (std::cin.fail() || choice < 0 || choice > a_max) {
       std::cin.clear();
-      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
       std::cout << "Invalid input. Please try again: ";
     } else {
       break;
@@ -64,28 +64,27 @@ void print_short_menu(MenuPair& a_menu) {
   new_line();
 }
 
-void set_graph_from_file(Graph& a_graph, int& a_size, std::string& a_filename) {
+void View::set_graph_from_file() {
   print_string(Menu::filename_welcome);
   std::string filename;
   std::cin >> filename;
   try {
-    a_graph = Graph::LoadGraphFromFile(filename);
-    a_size = a_graph.get_graph_size();
-    a_filename = filename;
-  } catch (std::exception& e) {
-    std::cerr << "Unexpected error" << e.what() << std::endl;
+    graph_ = Graph::LoadGraphFromFile(filename);
+    filename_ = filename;
+  } catch (std::invalid_argument& e) {
+    std::cerr << "Unexpected error\n" << e.what() << std::endl;
     std::cerr << "Please write correct filename" << std::endl;
   }
 }
 
-void set_bfs(const Graph& a_graph, const int a_size) {
-  if (a_graph.is_valid_graph()) {
+void View::set_bfs() {
+  if (graph_.is_valid_graph()) {
     print_string(Menu::start_vertex_welcome);
-    std::cout << a_size;
+    std::cout << graph_.get_graph_size();
     new_line();
     int vertex{0};
     std::cin >> vertex;
-    auto result = GraphAlgorithms::BreadthFirstSearch(a_graph, vertex);
+    auto result = GraphAlgorithms::BreadthFirstSearch(graph_, vertex);
     print_string(Menu::ui_line);
     print_string(Menu::result_label);
     new_line();
@@ -98,14 +97,14 @@ void set_bfs(const Graph& a_graph, const int a_size) {
     std::cerr << "ERROR! Please upload a graph first" << std::endl;
 }
 
-void set_dfs(const Graph& a_graph, const int a_size) {
-  if (a_graph.is_valid_graph()) {
+void View::set_dfs() {
+  if (graph_.is_valid_graph()) {
     print_string(Menu::start_vertex_welcome);
-    std::cout << a_size;
+    std::cout << graph_.get_graph_size();
     new_line();
     int vertex{0};
     std::cin >> vertex;
-    auto result = GraphAlgorithms::DepthFirstSearch(a_graph, vertex);
+    auto result = GraphAlgorithms::DepthFirstSearch(graph_, vertex);
     print_string(Menu::ui_line);
     print_string(Menu::result_label);
     new_line();
@@ -118,20 +117,20 @@ void set_dfs(const Graph& a_graph, const int a_size) {
     std::cerr << "ERROR! Please upload a graph first" << std::endl;
 }
 
-void set_dijkstra(const Graph& a_graph, const int a_size) {
-  if (a_graph.is_valid_graph()) {
+void View::set_dijkstra() {
+  if (graph_.is_valid_graph()) {
     print_string(Menu::start_vertex_welcome);
-    std::cout << a_size - 1;
+    std::cout << graph_.get_graph_size() - 1;
     new_line();
     int vertex_1{0};
     std::cin >> vertex_1;
     print_string(Menu::start_vertex_welcome);
-    std::cout << a_size - 1;
+    std::cout << graph_.get_graph_size() - 1;
     new_line();
     int vertex_2{0};
     std::cin >> vertex_2;
     unsigned path = GraphAlgorithms::GetShortestPathBetweenVertices(
-        a_graph, vertex_1, vertex_2);
+        graph_, vertex_1, vertex_2);
     print_string(Menu::ui_line);
     print_string(Menu::result_label);
     new_line();
@@ -142,10 +141,10 @@ void set_dijkstra(const Graph& a_graph, const int a_size) {
     std::cerr << "ERROR! Please upload a graph first" << std::endl;
 }
 
-void set_floyd(const Graph& a_graph) {
-  if (a_graph.is_valid_graph()) {
+void View::set_floyd() {
+  if (graph_.is_valid_graph()) {
     Alias::IntGrid res =
-        GraphAlgorithms::GetShortestPathsBetweenAllVertices(a_graph);
+        GraphAlgorithms::GetShortestPathsBetweenAllVertices(graph_);
     print_string(Menu::ui_line);
     print_string(Menu::result_label);
     new_line();
@@ -161,9 +160,9 @@ void set_floyd(const Graph& a_graph) {
     std::cerr << "ERROR! Please upload a graph first" << std::endl;
 }
 
-void set_tree(const Graph& a_graph) {
-  if (a_graph.is_valid_graph()) {
-    Alias::IntGrid res = GraphAlgorithms::GetLeastSpanningTree(a_graph);
+void View::set_tree() {
+  if (graph_.is_valid_graph()) {
+    Alias::IntGrid res = GraphAlgorithms::GetLeastSpanningTree(graph_);
     print_string(Menu::ui_line);
     print_string(Menu::result_label);
     new_line();
@@ -179,9 +178,9 @@ void set_tree(const Graph& a_graph) {
     std::cerr << "ERROR! Please upload a graph first" << std::endl;
 }
 
-void set_ants(const Graph& a_graph) {
-  if (a_graph.is_valid_graph()) {
-    TsmResult res = GraphAlgorithms::SolveTravelingSalesmanProblem(a_graph);
+void View::set_ants() {
+  if (graph_.is_valid_graph()) {
+    TsmResult res = GraphAlgorithms::SolveTravelingSalesmanProblem(graph_);
     print_string(Menu::ui_line);
     print_string(Menu::result_label);
     new_line();
@@ -197,12 +196,11 @@ void set_ants(const Graph& a_graph) {
     std::cerr << "ERROR! Please upload a graph first" << std::endl;
 }
 
-void print_current_graph_info(const std::string& a_filename,
-                              const Graph& a_graph) {
-  if (a_graph.is_valid_graph()) {
-    std::cout << "Current graph loaded from file: " << a_filename;
+void View::print_current_graph_info() {
+  if (graph_.is_valid_graph()) {
+    std::cout << "Current graph loaded from file: " << filename_;
     new_line();
-    std::cout << "Current graph size " << a_graph.get_graph_size();
+    std::cout << "Current graph size " << graph_.get_graph_size();
     new_line();
   } else
     std::cerr << "ERROR! Please upload a graph first" << std::endl;

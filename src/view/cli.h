@@ -10,8 +10,8 @@
 #include <unistd.h>
 #endif
 
-#include "lib/s21_graph/s21_graph.h"
-#include "lib/s21_graph_algorithms/s21_graph_algorithms.h"
+#include "../lib/s21_graph/s21_graph.h"
+#include "../lib/s21_graph_algorithms/s21_graph_algorithms.h"
 
 using MenuPair = std::map<unsigned, std::pair<std::string, std::string>>;
 
@@ -77,34 +77,35 @@ enum class USER_INPUT {
   NONE
 };
 
-// TODO class view
 class View {
  public:
+  View() : graph_{0}, filename_{} {}
+  View(Graph& a_graph, std::string& a_filename)
+      : graph_{a_graph}, filename_{a_filename} {}
+  ~View() = default;
+
+  void print_current_graph_info();
+  void set_graph_from_file();
+  void set_bfs();
+  void set_dfs();
+  void set_dijkstra();
+  void set_floyd();
+  void set_tree();
+  void set_ants();
+
  private:
-  Graph& graph_;
+  Graph graph_;
   std::string filename_;
 };
-
-void print_string(const std::string& a_string);
-void new_line();
 
 MenuPair make_menu_points();
 
 int get_choice(int a_max);
 
+void print_string(const std::string& a_string);
+void new_line();
 void print_menu(MenuPair& a_menu);
 void print_short_menu(MenuPair& a_menu);
-
-void print_current_graph_info(const std::string& a_filename,
-                              const Graph& a_graph);
-
-void set_graph_from_file(Graph& a_graph, int& a_size, std::string& a_filename);
-void set_bfs(const Graph& a_graph, const int a_size);
-void set_dfs(const Graph& a_graph, const int a_size);
-void set_dijkstra(const Graph& a_graph, const int a_size);
-void set_floyd(const Graph& a_graph);
-void set_tree(const Graph& a_graph);
-void set_ants(const Graph& a_graph);
 
 inline void clear_console() {
 #ifdef _WIN32
