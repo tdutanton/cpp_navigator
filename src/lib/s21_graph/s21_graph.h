@@ -36,7 +36,7 @@ class Graph {
  public:
 #else
  private:
-#endif
+#endif  // TEST
   size_t graph_size_;
   Alias::IntGrid adjacency_matrix_;
   bool valid_graph_;

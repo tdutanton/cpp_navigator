@@ -29,7 +29,7 @@ class FileReader {
  public:
 #else
  private:
-#endif
+#endif                    // TEST
   std::string filename_;  ///< The name of the file to read.
   std::ifstream file_;    ///< File stream for reading.
   size_t size_parsed_;  ///< Graph size (number parsed from file's first line).

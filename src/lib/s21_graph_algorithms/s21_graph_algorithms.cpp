@@ -227,6 +227,26 @@ double AntHill::random_destination() const {
   return result;
 }
 
+void AntHill::set_alpha_pheromone_weight(const double a_value) {
+  alpha_pheromone_weight_ = a_value;
+}
+
+void AntHill::set_beta_distance_weight_(const double a_value) {
+  beta_distance_weight_ = a_value;
+}
+
+void AntHill::set_q_regulation_parameter_(const double a_value) {
+  q_regulation_parameter_ = a_value;
+}
+
+void AntHill::set_p_pheromone_evaporation_coef(const double a_value) {
+  p_pheromone_evaporation_coef_ = a_value;
+}
+
+void AntHill::set_start_pheromone_(const double a_value) {
+  start_pheromone_ = a_value;
+}
+
 AntHill::AntHill(const Graph& a_graph) : graph_{a_graph} {
   anthill_size_ = graph_.get_graph_size();
   pheromone_matrix_ = Alias::PheromoneGrid(

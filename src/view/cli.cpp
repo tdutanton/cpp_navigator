@@ -5,17 +5,14 @@ void new_line() { std::cout << std::endl; }
 
 MenuPair make_menu_points() {
   MenuPair menu_pair;
-  menu_pair[1] =
-      std::make_pair(Menu::upload_graph_long, Menu::upload_graph_short);
-  menu_pair[2] =
-      std::make_pair(Menu::breadth_search_long, Menu::breadth_search_short);
-  menu_pair[3] =
-      std::make_pair(Menu::depth_search_long, Menu::depth_search_short);
-  menu_pair[4] = std::make_pair(Menu::dijkstra_long, Menu::dijkstra_short);
-  menu_pair[5] = std::make_pair(Menu::floyd_long, Menu::floyd_short);
-  menu_pair[6] = std::make_pair(Menu::tree_long, Menu::tree_short);
-  menu_pair[7] = std::make_pair(Menu::ants_long, Menu::ants_shorts);
-  menu_pair[0] = std::make_pair(Menu::exit, Menu::exit);
+  menu_pair[1] = Menu::upload_graph_long;
+  menu_pair[2] = Menu::breadth_search_long;
+  menu_pair[3] = Menu::depth_search_long;
+  menu_pair[4] = Menu::dijkstra_long;
+  menu_pair[5] = Menu::floyd_long;
+  menu_pair[6] = Menu::tree_long;
+  menu_pair[7] = Menu::ants_long;
+  menu_pair[0] = Menu::exit;
   return menu_pair;
 }
 
@@ -41,24 +38,11 @@ void print_menu(MenuPair& a_menu) {
   new_line();
   for (unsigned long long i = 1; i < a_menu.size(); i++) {
     std::cout << i << " - ";
-    print_string(a_menu[i].first);
+    print_string(a_menu[i]);
     new_line();
   }
   std::cout << 0 << " - ";
-  print_string(a_menu[0].first);
-  new_line();
-  print_string(Menu::note);
-  new_line();
-}
-
-void print_short_menu(MenuPair& a_menu) {
-  for (unsigned long long i = 1; i < a_menu.size(); i++) {
-    std::cout << i << " - ";
-    print_string(a_menu[i].second);
-    new_line();
-  }
-  std::cout << 0 << " - ";
-  print_string(a_menu[0].second);
+  print_string(a_menu[0]);
   new_line();
   print_string(Menu::note);
   new_line();
@@ -204,4 +188,38 @@ void View::print_current_graph_info() {
     new_line();
   } else
     std::cerr << "ERROR! Please upload a graph first" << std::endl;
+}
+
+ActionsMap actions(View& a_view) {
+  ActionsMap result;
+
+  result[USER_INPUT::LOAD] = [&]() {
+    a_view.set_graph_from_file();
+    a_view.print_current_graph_info();
+  };
+  result[USER_INPUT::BFS] = [&]() {
+    a_view.print_current_graph_info();
+    a_view.set_bfs();
+  };
+  result[USER_INPUT::DFS] = [&]() {
+    a_view.print_current_graph_info();
+    a_view.set_dfs();
+  };
+  result[USER_INPUT::DIJKSTRA] = [&]() {
+    a_view.print_current_graph_info();
+    a_view.set_dijkstra();
+  };
+  result[USER_INPUT::FLOYD] = [&]() {
+    a_view.print_current_graph_info();
+    a_view.set_floyd();
+  };
+  result[USER_INPUT::TREE] = [&]() {
+    a_view.print_current_graph_info();
+    a_view.set_tree();
+  };
+  result[USER_INPUT::ANTS] = [&]() {
+    a_view.print_current_graph_info();
+    a_view.set_ants();
+  };
+  return result;
 }

@@ -65,7 +65,7 @@ class Ant {
  public:
 #else
  private:
-#endif
+#endif  // TEST
   /// @brief Index of start ant's point
   Alias::node_index start_vertex_;
   /// @brief Index of point - where's ant's now
@@ -106,31 +106,21 @@ class AntHill {
 
   TsmResult solve_salesman_graph();
 
-  void set_alpha_pheromone_weight(const double a_value) {
-    alpha_pheromone_weight_ = a_value;
-  }
+  void set_alpha_pheromone_weight(const double a_value);
   double get_alpha_pheromone_weight() const { return alpha_pheromone_weight_; }
 
-  void set_beta_distance_weight_(const double a_value) {
-    beta_distance_weight_ = a_value;
-  }
+  void set_beta_distance_weight_(const double a_value);
   double get_beta_distance_weight() const { return beta_distance_weight_; }
 
-  void set_q_regulation_parameter_(const double a_value) {
-    q_regulation_parameter_ = a_value;
-  }
+  void set_q_regulation_parameter_(const double a_value);
   double get_q_regulation_parameter() const { return q_regulation_parameter_; }
 
-  void set_p_pheromone_evaporation_coef(const double a_value) {
-    p_pheromone_evaporation_coef_ = a_value;
-  }
+  void set_p_pheromone_evaporation_coef(const double a_value);
   double get_p_pheromone_evaporation_coef() const {
     return p_pheromone_evaporation_coef_;
   }
 
-  void set_start_pheromone_(const double a_value) {
-    start_pheromone_ = a_value;
-  }
+  void set_start_pheromone_(const double a_value);
   double get_start_pheromone() const { return start_pheromone_; }
 
   size_t get_anthill_size() const { return anthill_size_; }
@@ -146,7 +136,7 @@ class AntHill {
   size_t anthill_size_;
   /// @brief From 0 to 1. 0 - greedy algo
   double alpha_pheromone_weight_ = 1.0;
-  /// TODO!!!!!///
+  //! TODO comments
   ///  @brief from ?? to ??
   double beta_distance_weight_ = 2.0;
   /**
