@@ -77,12 +77,20 @@ enum class USER_INPUT {
   NONE
 };
 
+// TODO class view
+class View {
+ public:
+ private:
+  Graph& graph_;
+  std::string filename_;
+};
+
 void print_string(const std::string& a_string);
 void new_line();
 
 MenuPair make_menu_points();
 
-int get_choice(int max);
+int get_choice(int a_max);
 
 void print_menu(MenuPair& a_menu);
 void print_short_menu(MenuPair& a_menu);

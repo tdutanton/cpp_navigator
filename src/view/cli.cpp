@@ -19,11 +19,11 @@ MenuPair make_menu_points() {
   return menu_pair;
 }
 
-int get_choice(int max) {
+int get_choice(int a_max) {
   int choice;
   while (true) {
     std::cin >> choice;
-    if (std::cin.fail() || choice < 0 || choice > max) {
+    if (std::cin.fail() || choice < 0 || choice > a_max) {
       std::cin.clear();
       std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
       std::cout << "Invalid input. Please try again: ";
@@ -47,6 +47,8 @@ void print_menu(MenuPair& a_menu) {
   std::cout << 0 << " - ";
   print_string(a_menu[0].first);
   new_line();
+  print_string(Menu::note);
+  new_line();
 }
 
 void print_short_menu(MenuPair& a_menu) {
@@ -57,6 +59,8 @@ void print_short_menu(MenuPair& a_menu) {
   }
   std::cout << 0 << " - ";
   print_string(a_menu[0].second);
+  new_line();
+  print_string(Menu::note);
   new_line();
 }
 

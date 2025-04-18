@@ -1,4 +1,4 @@
-#include "cli.h"
+#include "view/cli.h"
 
 /* int main() {
   Graph g = Graph::LoadGraphFromFile("gr.txt");
