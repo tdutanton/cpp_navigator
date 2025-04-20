@@ -8,9 +8,9 @@ Alias::NodesPath TraverseGraph(const Graph& a_graph, int a_start_vertex,
                                T& a_container) {
   Alias::NodesPath result;
   const size_t size = a_graph.get_graph_size();
-  if (size == 0 || a_start_vertex < 0 ||
-      static_cast<size_t>(a_start_vertex) >= size)
-    return result;
+  if (size == 0 || a_start_vertex <= 0 ||
+      static_cast<size_t>(a_start_vertex) > size)
+    throw std::invalid_argument("Invalid start vertex value");
   std::vector<bool> visited(size, false);
 
   a_container.push(a_start_vertex - 1);

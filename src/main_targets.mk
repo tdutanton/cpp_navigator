@@ -60,13 +60,14 @@ test_algorithms: $(TEST_ALGORITHMS_O) $(LIB_NAME_ALGORITHMS)
 .PHONY: style_check
 style_check:
 	@cp ../materials/linters/.clang-format .clang-format
-	@find . -name '*.cpp' -o -name '*.h' | xargs clang-format -Werror -n
+	@find . -name '*.cpp' -o -name '*.tpp' -o -name '*.h' | xargs clang-format -Werror -n
 	@rm -rf .clang-format
 
 .PHONY: style_fix
 style_fix:
 	@cp ../materials/linters/.clang-format .clang-format
 	find . -name '*.cpp' -exec clang-format -i {} \;
+	find . -name '*.tpp' -exec clang-format -i {} \;
 	find . -name '*.h' -exec clang-format -i {} \;
 	@rm -rf .clang-format
 

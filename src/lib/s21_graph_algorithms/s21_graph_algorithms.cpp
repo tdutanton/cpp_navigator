@@ -78,9 +78,12 @@ unsigned GraphAlgorithms::GetShortestPathBetweenVertices(const Graph& graph,
                                                          const int vertex1,
                                                          const int vertex2) {
   /// minus 1 because of indexes values goes from 0
+  const size_t size = graph.get_graph_size();
+  if ((vertex1 == 0 || vertex1 < 0 || static_cast<size_t>(vertex1) >= size) ||
+      (vertex2 == 0 || vertex2 < 0 || static_cast<size_t>(vertex2) >= size))
+    throw std::invalid_argument("Invalid vertex value");
   int start = vertex1 - 1;
   int end = vertex2 - 1;
-
   auto [distance_array, prev_node] = GetShortPath(graph, start);
   return distance_array[end];
 }
@@ -104,7 +107,8 @@ Alias::IntRow GraphAlgorithms::GetShortestVectorBetweenVertices(
 Alias::IntGrid GraphAlgorithms::GetShortestPathsBetweenAllVertices(
     const Graph& graph) {
   const size_t size = graph.get_graph_size();
-  if (size == 0) return Alias::IntGrid(0);
+  if (size == 0 || !graph.is_valid_graph())
+    throw std::invalid_argument("Invalid graph");
   Alias::IntGrid result{size, std::vector<int>(size, INT_MAX)};
 
   for (size_t i = 0; i < result.size(); i++) {
@@ -141,7 +145,8 @@ Alias::IntGrid GraphAlgorithms::GetShortestPathsBetweenAllVertices(
 
 SpanTree GraphAlgorithms::GetSpanTree(const Graph& graph) {
   const size_t size = graph.get_graph_size();
-  //! if (size == 0) //!TODO
+  if (size == 0 || !graph.is_valid_graph())
+    throw std::invalid_argument("Invalid graph");
   std::vector<bool> visited(size, false);
   std::vector<Alias::distance> distance_array(size, UINT_MAX);
   std::vector<int> prev_node(size, -1);
@@ -401,6 +406,8 @@ TsmResult AntHill::solve_salesman_graph() {
 }
 
 TsmResult GraphAlgorithms::SolveTravelingSalesmanProblem(const Graph& graph) {
+  if (graph.get_graph_size() == 0 || !graph.is_valid_graph())
+    throw std::invalid_argument("Invalid graph");
   AntHill anthill(graph);
   return anthill.solve_salesman_graph();
 }

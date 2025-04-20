@@ -14,6 +14,19 @@
 #include "../lib/s21_graph/s21_graph.h"
 #include "../lib/s21_graph_algorithms/s21_graph_algorithms.h"
 
+namespace Color {
+static const std::string red = "\033[31m";
+static const std::string green = "\033[32m";
+static const std::string blue = "\033[34m";
+static const std::string orange = "\033[38;2;255;165;0m";
+static const std::string color_end = "\033[0m";
+};  // namespace Color
+
+namespace Style {
+static const std::string dim = "\033[2m";
+static const std::string italics = "\033[3m";
+};  // namespace Style
+
 namespace Menu {
 static const std::string greeting = "====  Graph Algorithms ====";
 static const std::string input_welcome = "==== Enter your choice ====";
@@ -22,13 +35,13 @@ static const std::string upload_graph_long =
     "file)";
 static const std::string breadth_search_long =
     "Breadth First Search (BFS) from any vertex - returns array of vertices. "
-    "Input vertex";
+    "Input - vertex";
 static const std::string depth_search_long =
     "Depth First Search (DFS) from any vertex - returns array of vertices. "
-    "Input vertex";
+    "Input - vertex";
 static const std::string dijkstra_long =
-    "Find shortest path between two vertices. Enter start and stop with space "
-    "between. Returns the value of the shortest path";
+    "Find shortest path between two vertices. Input - start and stop vertices. "
+    "Returns the shortest path";
 static const std::string floyd_long =
     "Find shortest paths between all vertices. Returns the matrix of shortest "
     "paths";
@@ -36,17 +49,32 @@ static const std::string tree_long =
     "Find minimal spanning tree. Returns the adjacency matrix for minimal "
     "spanning tree";
 static const std::string ants_long =
-    "Solution of the traveling salesman problem. Returns the output of the "
-    "resulting route and its length in the console";
+    "Solution of the traveling salesman problem. Returns the "
+    "resulting route and its length";
 static const std::string exit = "Exit";
-static const std::string note = "**Numeration of vertices from 1**";
+static const std::string note = "Numeration of vertices from 1";
 static const std::string filename_welcome =
-    "Enter filename with path (if it's in other folder) to file with adjacency "
+    "Enter filename (with path if it's in other folder) to file with adjacency "
     "matrix: ";
 static const std::string start_vertex_welcome =
     "Enter number of vertex - from 1 to ";
 static const std::string result_label = "Result: ";
 static const std::string ui_line = "===========================\n";
+
+inline static void print_error_bad_graph() {
+  std::cerr << Color::red << "ERROR! Please upload a graph first"
+            << Color::color_end << std::endl;
+}
+inline static void print_error_invalid_vertex(std::invalid_argument& e) {
+  std::cerr << Color::red << "Unexpected error\n" << e.what() << std::endl;
+  std::cerr << "Please write correct vertex value" << Color::color_end
+            << std::endl;
+}
+inline static void print_error_invalid_graph(std::invalid_argument& e) {
+  std::cerr << Color::red << "Unexpected error\n" << e.what() << std::endl;
+  std::cerr << "Graph error" << Color::color_end << std::endl;
+}
+
 };  // namespace Menu
 
 enum class USER_INPUT {
@@ -73,12 +101,11 @@ class View {
 
   void print_current_graph_info();
   void set_graph_from_file();
-  void set_bfs();
-  void set_dfs();
   void set_dijkstra();
-  void set_floyd();
-  void set_tree();
   void set_ants();
+  void set_dbfs(
+      std::function<Alias::NodesPath(const Graph&, const int)> a_func);
+  void set_floyd_or_tree(std::function<Alias::IntGrid(const Graph&)> a_func);
 
 #ifdef TEST
  public:

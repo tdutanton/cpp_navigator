@@ -23,7 +23,8 @@ int get_choice(int a_max) {
     if (std::cin.fail() || choice < 0 || choice > a_max) {
       std::cin.clear();
       std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
-      std::cout << "Invalid input. Please try again: ";
+      std::cout << Color::red
+                << "Invalid input. Please try again: " << Color::color_end;
     } else {
       break;
     }
@@ -44,7 +45,7 @@ void print_menu(MenuPair& a_menu) {
   std::cout << 0 << " - ";
   print_string(a_menu[0]);
   new_line();
-  print_string(Menu::note);
+  std::cout << Style::dim << Style::italics << Menu::note << Color::color_end;
   new_line();
 }
 
@@ -56,49 +57,37 @@ void View::set_graph_from_file() {
     graph_ = Graph::LoadGraphFromFile(filename);
     filename_ = filename;
   } catch (std::invalid_argument& e) {
-    std::cerr << "Unexpected error\n" << e.what() << std::endl;
-    std::cerr << "Please write correct filename" << std::endl;
+    std::cerr << Color::red << "Unexpected error\n" << e.what() << std::endl;
+    std::cerr << "Please write correct filename" << Color::color_end
+              << std::endl;
   }
 }
 
-void View::set_bfs() {
+void View::set_dbfs(
+    std::function<Alias::NodesPath(const Graph&, const int)> a_func) {
   if (graph_.is_valid_graph()) {
     print_string(Menu::start_vertex_welcome);
     std::cout << graph_.get_graph_size();
     new_line();
     int vertex{0};
     std::cin >> vertex;
-    auto result = GraphAlgorithms::BreadthFirstSearch(graph_, vertex);
-    print_string(Menu::ui_line);
-    print_string(Menu::result_label);
-    new_line();
-    for (const auto& i : result) {
-      std::cout << i << " ";
+    try {
+      auto result = a_func(graph_, vertex);
+      std::cout << Color::green;
+      print_string(Menu::ui_line);
+      print_string(Menu::result_label);
+      new_line();
+      for (const auto& i : result) {
+        std::cout << i << " ";
+      }
+      new_line();
+      print_string(Menu::ui_line);
+      std::cout << Color::color_end;
+    } catch (std::invalid_argument& e) {
+      Menu::print_error_invalid_vertex(e);
     }
-    new_line();
-    print_string(Menu::ui_line);
   } else
-    std::cerr << "ERROR! Please upload a graph first" << std::endl;
-}
-
-void View::set_dfs() {
-  if (graph_.is_valid_graph()) {
-    print_string(Menu::start_vertex_welcome);
-    std::cout << graph_.get_graph_size();
-    new_line();
-    int vertex{0};
-    std::cin >> vertex;
-    auto result = GraphAlgorithms::DepthFirstSearch(graph_, vertex);
-    print_string(Menu::ui_line);
-    print_string(Menu::result_label);
-    new_line();
-    for (const auto& i : result) {
-      std::cout << i << " ";
-    }
-    new_line();
-    print_string(Menu::ui_line);
-  } else
-    std::cerr << "ERROR! Please upload a graph first" << std::endl;
+    Menu::print_error_bad_graph();
 }
 
 void View::set_dijkstra() {
@@ -113,81 +102,83 @@ void View::set_dijkstra() {
     new_line();
     int vertex_2{0};
     std::cin >> vertex_2;
-    unsigned path = GraphAlgorithms::GetShortestPathBetweenVertices(
-        graph_, vertex_1, vertex_2);
-    print_string(Menu::ui_line);
-    print_string(Menu::result_label);
-    new_line();
-    std::cout << path;
-    new_line();
-    print_string(Menu::ui_line);
+    try {
+      unsigned path = GraphAlgorithms::GetShortestPathBetweenVertices(
+          graph_, vertex_1, vertex_2);
+      std::cout << Color::green;
+      print_string(Menu::ui_line);
+      print_string(Menu::result_label);
+      new_line();
+      std::cout << path;
+      new_line();
+      print_string(Menu::ui_line);
+      std::cout << Color::color_end;
+    } catch (std::invalid_argument& e) {
+      Menu::print_error_invalid_vertex(e);
+    }
   } else
-    std::cerr << "ERROR! Please upload a graph first" << std::endl;
+    Menu::print_error_bad_graph();
 }
 
-void View::set_floyd() {
+void View::set_floyd_or_tree(
+    std::function<Alias::IntGrid(const Graph&)> a_func) {
   if (graph_.is_valid_graph()) {
-    Alias::IntGrid res =
-        GraphAlgorithms::GetShortestPathsBetweenAllVertices(graph_);
-    print_string(Menu::ui_line);
-    print_string(Menu::result_label);
-    new_line();
-    for (size_t i = 0; i < res.size(); i++) {
-      for (size_t j = 0; j < res.size(); j++) {
-        std::cout << res[i][j] << " ";
+    try {
+      Alias::IntGrid res = a_func(graph_);
+      std::cout << Color::green;
+      print_string(Menu::ui_line);
+      print_string(Menu::result_label);
+      new_line();
+      for (size_t i = 0; i < res.size(); i++) {
+        for (size_t j = 0; j < res.size(); j++) {
+          std::cout << res[i][j] << " ";
+        }
+        new_line();
       }
       new_line();
+      print_string(Menu::ui_line);
+      std::cout << Color::color_end;
+    } catch (std::invalid_argument& e) {
+      Menu::print_error_invalid_graph(e);
     }
-    new_line();
-    print_string(Menu::ui_line);
   } else
-    std::cerr << "ERROR! Please upload a graph first" << std::endl;
-}
-
-void View::set_tree() {
-  if (graph_.is_valid_graph()) {
-    Alias::IntGrid res = GraphAlgorithms::GetLeastSpanningTree(graph_);
-    print_string(Menu::ui_line);
-    print_string(Menu::result_label);
-    new_line();
-    for (size_t i = 0; i < res.size(); i++) {
-      for (size_t j = 0; j < res.size(); j++) {
-        std::cout << res[i][j] << " ";
-      }
-      new_line();
-    }
-    new_line();
-    print_string(Menu::ui_line);
-  } else
-    std::cerr << "ERROR! Please upload a graph first" << std::endl;
+    Menu::print_error_bad_graph();
 }
 
 void View::set_ants() {
   if (graph_.is_valid_graph()) {
-    TsmResult res = GraphAlgorithms::SolveTravelingSalesmanProblem(graph_);
-    print_string(Menu::ui_line);
-    print_string(Menu::result_label);
-    new_line();
-    std::cout << "Shortest distance: " << res.distance;
-    new_line();
-    std::cout << "Shortest path: ";
-    for (const auto& i : res.vertices) {
-      std::cout << i << " ";
+    try {
+      TsmResult res = GraphAlgorithms::SolveTravelingSalesmanProblem(graph_);
+      std::cout << Color::green;
+      print_string(Menu::ui_line);
+      print_string(Menu::result_label);
+      new_line();
+      std::cout << "Shortest distance: " << res.distance;
+      new_line();
+      std::cout << "Shortest path: ";
+      for (const auto& i : res.vertices) {
+        std::cout << i << " ";
+      }
+      new_line();
+      print_string(Menu::ui_line);
+      std::cout << Color::color_end;
+    } catch (std::invalid_argument& e) {
+      Menu::print_error_invalid_graph(e);
     }
-    new_line();
-    print_string(Menu::ui_line);
   } else
-    std::cerr << "ERROR! Please upload a graph first" << std::endl;
+    Menu::print_error_bad_graph();
 }
 
 void View::print_current_graph_info() {
   if (graph_.is_valid_graph()) {
+    std::cout << Color::orange;
     std::cout << "Current graph loaded from file: " << filename_;
     new_line();
     std::cout << "Current graph size " << graph_.get_graph_size();
     new_line();
+    std::cout << Color::color_end;
   } else
-    std::cerr << "ERROR! Please upload a graph first" << std::endl;
+    Menu::print_error_bad_graph();
 }
 
 ActionsMap actions(View& a_view) {
@@ -199,11 +190,11 @@ ActionsMap actions(View& a_view) {
   };
   result[USER_INPUT::BFS] = [&]() {
     a_view.print_current_graph_info();
-    a_view.set_bfs();
+    a_view.set_dbfs(GraphAlgorithms::BreadthFirstSearch);
   };
   result[USER_INPUT::DFS] = [&]() {
     a_view.print_current_graph_info();
-    a_view.set_dfs();
+    a_view.set_dbfs(GraphAlgorithms::DepthFirstSearch);
   };
   result[USER_INPUT::DIJKSTRA] = [&]() {
     a_view.print_current_graph_info();
@@ -211,11 +202,12 @@ ActionsMap actions(View& a_view) {
   };
   result[USER_INPUT::FLOYD] = [&]() {
     a_view.print_current_graph_info();
-    a_view.set_floyd();
+    a_view.set_floyd_or_tree(
+        GraphAlgorithms::GetShortestPathsBetweenAllVertices);
   };
   result[USER_INPUT::TREE] = [&]() {
     a_view.print_current_graph_info();
-    a_view.set_tree();
+    a_view.set_floyd_or_tree(GraphAlgorithms::GetLeastSpanningTree);
   };
   result[USER_INPUT::ANTS] = [&]() {
     a_view.print_current_graph_info();
