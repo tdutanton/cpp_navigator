@@ -79,8 +79,8 @@ unsigned GraphAlgorithms::GetShortestPathBetweenVertices(const Graph& graph,
                                                          const int vertex2) {
   /// minus 1 because of indexes values goes from 0
   const size_t size = graph.get_graph_size();
-  if ((vertex1 == 0 || vertex1 < 0 || static_cast<size_t>(vertex1) >= size) ||
-      (vertex2 == 0 || vertex2 < 0 || static_cast<size_t>(vertex2) >= size))
+  if ((vertex1 <= 0 || static_cast<size_t>(vertex1) > size) ||
+      (vertex2 <= 0 || static_cast<size_t>(vertex2) > size))
     throw std::invalid_argument("Invalid vertex value");
   int start = vertex1 - 1;
   int end = vertex2 - 1;

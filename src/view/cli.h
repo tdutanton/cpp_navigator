@@ -30,6 +30,7 @@ static const std::string italics = "\033[3m";
 namespace Menu {
 static const std::string greeting = "====  Graph Algorithms ====";
 static const std::string input_welcome = "==== Enter your choice ====";
+
 static const std::string upload_graph_long =
     "Load graph from file with adjacency matrix (make shure You have a good "
     "file)";
@@ -51,6 +52,8 @@ static const std::string tree_long =
 static const std::string ants_long =
     "Solution of the traveling salesman problem. Returns the "
     "resulting route and its length";
+static const std::string dot_long = "Export graph to .dot file";
+
 static const std::string exit = "Exit";
 static const std::string note = "Numeration of vertices from 1";
 static const std::string filename_welcome =
@@ -86,6 +89,7 @@ enum class USER_INPUT {
   FLOYD,
   TREE,
   ANTS,
+  DOT,
   NONE
 };
 
@@ -106,6 +110,9 @@ class View {
   void set_dbfs(
       std::function<Alias::NodesPath(const Graph&, const int)> a_func);
   void set_floyd_or_tree(std::function<Alias::IntGrid(const Graph&)> a_func);
+  void set_upload_dot_file();
+
+  bool is_graph_loaded() const { return graph_.is_valid_graph(); }
 
 #ifdef TEST
  public:
@@ -124,6 +131,7 @@ int get_choice(int a_max);
 void print_string(const std::string& a_string);
 void new_line();
 void print_menu(MenuPair& a_menu);
+void print_empty_graph_menu(MenuPair& a_menu);
 
 inline void clear_console() {
 #ifdef _WIN32

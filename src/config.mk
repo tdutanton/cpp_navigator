@@ -4,7 +4,7 @@ SHELL = /bin/sh
 CC = g++ -std=c++20
 CFLAGS = -Wall -Werror -Wextra
 LFLAGS = -pthread -lgtest -lgtest_main -lstdc++
-GFLAGS = -fprofile-arcs -ftest-coverage
+GFLAGS = -O0 --coverage -fprofile-arcs -ftest-coverage
 DEBUG_FLAG = -g
 
 #### FILE NAMES ####

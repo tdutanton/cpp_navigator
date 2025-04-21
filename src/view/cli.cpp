@@ -12,6 +12,7 @@ MenuPair make_menu_points() {
   menu_pair[5] = Menu::floyd_long;
   menu_pair[6] = Menu::tree_long;
   menu_pair[7] = Menu::ants_long;
+  menu_pair[8] = Menu::dot_long;
   menu_pair[0] = Menu::exit;
   return menu_pair;
 }
@@ -46,6 +47,17 @@ void print_menu(MenuPair& a_menu) {
   print_string(a_menu[0]);
   new_line();
   std::cout << Style::dim << Style::italics << Menu::note << Color::color_end;
+  new_line();
+}
+
+void print_empty_graph_menu(MenuPair& a_menu) {
+  print_string(Menu::greeting);
+  new_line();
+  print_string(Menu::input_welcome);
+  new_line();
+  std::cout << 1 << " - " << a_menu[1];
+  new_line();
+  std::cout << 0 << " - " << a_menu[0];
   new_line();
 }
 
@@ -93,12 +105,12 @@ void View::set_dbfs(
 void View::set_dijkstra() {
   if (graph_.is_valid_graph()) {
     print_string(Menu::start_vertex_welcome);
-    std::cout << graph_.get_graph_size() - 1;
+    std::cout << graph_.get_graph_size();
     new_line();
     int vertex_1{0};
     std::cin >> vertex_1;
     print_string(Menu::start_vertex_welcome);
-    std::cout << graph_.get_graph_size() - 1;
+    std::cout << graph_.get_graph_size();
     new_line();
     int vertex_2{0};
     std::cin >> vertex_2;
@@ -169,6 +181,20 @@ void View::set_ants() {
     Menu::print_error_bad_graph();
 }
 
+void View::set_upload_dot_file() {
+  if (graph_.is_valid_graph()) {
+    std::cout << "Please write a filename to make .dot file";
+    new_line();
+    std::string filename;
+    std::cin >> filename;
+    filename += ".dot";
+    graph_.ExportGraphToDot(filename);
+    std::cout << Color::green << "Great! " << filename << " file is ready!"
+              << Color::color_end;
+    new_line();
+  }
+}
+
 void View::print_current_graph_info() {
   if (graph_.is_valid_graph()) {
     std::cout << Color::orange;
@@ -177,8 +203,7 @@ void View::print_current_graph_info() {
     std::cout << "Current graph size " << graph_.get_graph_size();
     new_line();
     std::cout << Color::color_end;
-  } else
-    Menu::print_error_bad_graph();
+  }
 }
 
 ActionsMap actions(View& a_view) {
@@ -212,6 +237,10 @@ ActionsMap actions(View& a_view) {
   result[USER_INPUT::ANTS] = [&]() {
     a_view.print_current_graph_info();
     a_view.set_ants();
+  };
+  result[USER_INPUT::DOT] = [&]() {
+    a_view.print_current_graph_info();
+    a_view.set_upload_dot_file();
   };
   return result;
 }

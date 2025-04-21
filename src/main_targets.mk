@@ -72,7 +72,7 @@ style_fix:
 	@rm -rf .clang-format
 
 .PHONY: clean
-clean:
+clean: gcov_clean
 	@rm -rf $(FILE_NAME_TEST_GRAPH) $(FILE_NAME_TEST_ALGORITHMS) *.o .clang-format
 	@rm -rf $(LIB_GRAPH_O) $(LIB_ALGORITHMS_O) ./tests/**/*.o *.gcno *.gcda ./report
 	@rm -rf $(GCOV_NAME)
@@ -120,3 +120,41 @@ dist: build
 .PHONY: rebuild
 rebuild: clean build
 
+.PHONY: gcov_report
+gcov_report: gcov_clean gcov_graph gcov_algorithms
+
+PHONY: gcov_graph
+gcov_graph:
+	@echo "Start making gcov report - graph lib"
+	@$(CC) $(CFLAGS) $(GFLAGS) -c $(LIB_GRAPH_SRC)
+	@$(CC) $(CFLAGS) $(GFLAGS) -c $(TEST_GRAPH_SRC)
+	@$(CC) *.o -o $(FILE_NAME_TEST_GRAPH) $(LFLAGS) $(GFLAGS)
+	@./$(FILE_NAME_TEST_GRAPH)
+	@lcov -t "gcov_tests" -o $(GCOV_NAME) -c -d . \
+		--exclude '/usr/include/*' \
+		--exclude '/usr/local/include/*' \
+		--exclude '*tests*' \
+		--exclude '*gtest*'
+	@genhtml -o $(DIR_REPORT) $(GCOV_NAME)
+	@echo "Open $(DIR_REPORT)/index.html to view coverage report"
+
+PHONY: gcov_algorithms
+gcov_algorithms:
+	@echo "Start making gcov report - graph_algorithms lib"
+	@$(CC) $(CFLAGS) $(GFLAGS) -c $(LIB_ALGORITHMS_SRC)
+	@$(CC) $(CFLAGS) $(GFLAGS) -c $(TEST_ALGORITHMS_SRC)
+	@$(CC) *.o -o $(FILE_NAME_TEST_ALGORITHMS) $(LFLAGS) $(GFLAGS)
+	@./$(FILE_NAME_TEST_ALGORITHMS)
+	@lcov -t "gcov_tests" -o $(GCOV_NAME) -c -d . \
+		--exclude '/usr/include/*' \
+		--exclude '/usr/local/include/*' \
+		--exclude '*tests*' \
+		--exclude '*gtest*'
+	@genhtml -o $(DIR_REPORT) $(GCOV_NAME)
+	@echo "Open $(DIR_REPORT)/index.html to view coverage report"
+
+.PHONY: gcov_clean
+gcov_clean:
+	@rm -f *.gcno *.gcda $(GCOV_NAME) *.o
+	@rm -f $(FILE_NAME_TEST_GRAPH) $(FILE_NAME_TEST_ALGORITHMS)
+	@rm -rf $(DIR_REPORT)

@@ -76,7 +76,7 @@ bool FileReader::set_parsed_graph_size(const std::string& a_filename) {
     if (std::getline(file_, first_line) && valid_file_)
       size_parsed_ = process_graph_size(first_line);
     close_file();
-    return true;
+    return (size_parsed_ > 1 ? true : false);
   }
   return false;
 }
