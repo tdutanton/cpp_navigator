@@ -2,13 +2,13 @@
 
 Alias::NodesPath GraphAlgorithms::DepthFirstSearch(const Graph& graph,
                                                    const int start_vertex) {
-  s21::stack<unsigned> stack_nodes;
+  s21::stack<int> stack_nodes;
   return TraverseGraph(graph, start_vertex, stack_nodes);
 }
 
 Alias::NodesPath GraphAlgorithms::BreadthFirstSearch(const Graph& graph,
                                                      const int start_vertex) {
-  s21::queue<unsigned> queue_nodes;
+  s21::queue<int> queue_nodes;
   return TraverseGraph(graph, start_vertex, queue_nodes);
 }
 
