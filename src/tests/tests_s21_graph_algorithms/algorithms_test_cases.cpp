@@ -147,6 +147,8 @@ TEST_F(GraphAlgorithmsTest, TraverseGraph_StackBehavior) {
   Graph small_graph(3);
   small_graph[0][1] = 1;
   small_graph[0][2] = 1;
+  small_graph[1][0] = 1;
+  small_graph[2][0] = 1;
 
   auto path = GraphAlgorithms::DepthFirstSearch(small_graph, 1);
   EXPECT_EQ(path[0], 1);
