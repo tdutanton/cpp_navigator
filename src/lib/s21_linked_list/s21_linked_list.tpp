@@ -77,11 +77,11 @@ void linked_list<T>::push_back(const_reference value) {
   newNode->next_ = nullptr;
   if (!head_) {
     head_ = newNode;
-  }
-  if (tail_) {
+    tail_ = newNode;
+  } else {
     tail_->next_ = newNode;
+    tail_ = newNode;
   }
-  tail_ = newNode;
   size_++;
 }
 
