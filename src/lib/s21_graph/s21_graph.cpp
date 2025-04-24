@@ -1,3 +1,10 @@
+/**
+ * @file s21_graph.cpp
+ * @author montoyay (https://t.me/tdutanton)
+ * @author buggkell (https://t.me/a_a_sorokina)
+ * @brief A class representing a graph using an adjacency matrix
+ */
+
 #include "s21_graph.h"
 
 Graph Graph::LoadGraphFromFile(const std::string& a_filename) {
