@@ -147,6 +147,7 @@ SpanTree GraphAlgorithms::GetSpanTree(const Graph& graph) {
   const size_t size = graph.get_graph_size();
   if (size == 0 || !graph.is_valid_graph())
     throw std::invalid_argument("Invalid graph");
+
   std::vector<bool> visited(size, false);
   std::vector<Alias::distance> distance_array(size, UINT_MAX);
   std::vector<int> prev_node(size, -1);
@@ -155,25 +156,25 @@ SpanTree GraphAlgorithms::GetSpanTree(const Graph& graph) {
       std::vector<std::pair<Alias::distance, Alias::node_index>>,
       std::greater<>>
       queue_nodes;
+
   int mst_weight = 0;
   distance_array[0] = 0;
   queue_nodes.push(std::make_pair(0, 0));
 
   while (!queue_nodes.empty()) {
     Alias::node_index current_node = queue_nodes.top().second;
+    Alias::distance current_dist = queue_nodes.top().first;
     queue_nodes.pop();
-
     if (visited[current_node]) continue;
     visited[current_node] = true;
+    mst_weight += current_dist;
     for (Alias::node_index i_neighbor = 0; i_neighbor < size; ++i_neighbor) {
       Alias::distance weight = graph[current_node][i_neighbor];
       if (weight > 0 && !visited[i_neighbor] &&
           weight < distance_array[i_neighbor]) {
         distance_array[i_neighbor] = weight;
-        mst_weight += weight;
         prev_node[i_neighbor] = current_node;
-        queue_nodes.push(
-            std::make_pair(distance_array[i_neighbor], i_neighbor));
+        queue_nodes.push(std::make_pair(weight, i_neighbor));
       }
     }
   }

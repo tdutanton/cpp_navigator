@@ -35,7 +35,7 @@ class Graph {
         adjacency_matrix_{a_size, std::vector<int>(a_size, 0)},
         valid_graph_{false} {}
 
-  Graph() = delete;    ///< Default constructor is deleted.
+  Graph() = default;   ///< Default constructor.
   ~Graph() = default;  ///< Default destructor.
 
   /**

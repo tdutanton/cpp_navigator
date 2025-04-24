@@ -20,7 +20,6 @@ Alias::NodesPath TraverseGraph(const Graph& a_graph, int a_start_vertex,
       current_node = a_container.top();
     } else {
       current_node = a_container.front();
-      std::cout << "current node = " << current_node << '\n';
     }
     a_container.pop();
     result.push_back(current_node + 1);
