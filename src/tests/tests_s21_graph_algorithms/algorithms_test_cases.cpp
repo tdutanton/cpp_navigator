@@ -11,7 +11,10 @@ class GraphAlgorithmsTest : public ::testing::Test {
         weighted_graph(4),
         valid_graph1(3),
         valid_graph2(4),
-        graph_with_loop(2) {
+        graph_with_loop(2),
+        empty_graph_(0),
+        no_hamiltonian_graph_(3),
+        valid_graph_(3) {
     CreateTestGraphs();
   }
   void SetUp() override { CreateTestGraphs(); }
@@ -55,7 +58,6 @@ class GraphAlgorithmsTest : public ::testing::Test {
     weighted_graph[2][3] = 2;
     weighted_graph[3][2] = 2;
 
-    // Валидные тестовые графы
     valid_graph1 = Graph(3);
     valid_graph1[0][1] = 1;
     valid_graph1[1][0] = 1;
@@ -74,10 +76,25 @@ class GraphAlgorithmsTest : public ::testing::Test {
     valid_graph2[2][3] = 2;
     valid_graph2[3][2] = 2;
 
-    // Граф с петлей
     graph_with_loop = Graph(2);
     graph_with_loop[0][1] = 1;
     graph_with_loop[1][0] = 1;
+
+    empty_graph_ = Graph(0);
+
+    no_hamiltonian_graph_ = Graph(3);
+    no_hamiltonian_graph_[0][1] = 1;
+    no_hamiltonian_graph_[1][0] = 1;
+    no_hamiltonian_graph_[1][2] = 1;
+    no_hamiltonian_graph_[2][1] = 1;
+
+    valid_graph_ = Graph(3);
+    valid_graph_[0][1] = 1;
+    valid_graph_[1][0] = 1;
+    valid_graph_[0][2] = 1;
+    valid_graph_[2][0] = 1;
+    valid_graph_[1][2] = 1;
+    valid_graph_[2][1] = 1;
   }
 
   Graph graph1_;
@@ -89,6 +106,10 @@ class GraphAlgorithmsTest : public ::testing::Test {
   Graph valid_graph1;
   Graph valid_graph2;
   Graph graph_with_loop;
+
+  Graph empty_graph_;
+  Graph no_hamiltonian_graph_;
+  Graph valid_graph_;
 };
 
 TEST_F(GraphAlgorithmsTest, DFS_InvalidStartVertex) {
@@ -167,7 +188,7 @@ TEST_F(GraphAlgorithmsTest, TraverseGraph_QueueBehavior) {
   auto path = GraphAlgorithms::BreadthFirstSearch(small_graph, 1);
 
   EXPECT_EQ(path[0], 1);
-  EXPECT_TRUE((path[1] == 1 && path[2] == 3) || (path[0] == 2 && path[2] == 3));
+  EXPECT_TRUE((path[0] == 1 && path[1] == 2));
 }
 
 TEST_F(GraphAlgorithmsTest, GetShortPath_InvalidStartIndex) {
@@ -274,4 +295,115 @@ TEST_F(GraphAlgorithmsTest, ShortestPathsAllVertices_DisconnectedGraph) {
 TEST_F(GraphAlgorithmsTest, SpanTree_DisconnectedGraph) {
   EXPECT_THROW(GraphAlgorithms::GetSpanTree(disconnected_graph),
                std::invalid_argument);
+}
+
+TEST_F(GraphAlgorithmsTest, GetSpanTreeThrowsOnInvalidGraph) {
+  Graph empty_graph(0);
+  EXPECT_THROW(GraphAlgorithms::GetSpanTree(empty_graph),
+               std::invalid_argument);
+}
+
+TEST_F(GraphAlgorithmsTest, GetSpanTreeSimpleGraph) {
+  simple_graph.valid_graph_ = true;
+  auto [matrix, weight] = GraphAlgorithms::GetSpanTree(simple_graph);
+
+  EXPECT_EQ(weight, 4);
+  EXPECT_EQ(matrix[0][1], 1);
+  EXPECT_EQ(matrix[1][0], 2);
+  EXPECT_EQ(matrix[1][2], 3);
+  EXPECT_EQ(matrix[2][1], 4);
+  EXPECT_EQ(matrix[0][2], 0);
+  EXPECT_EQ(matrix[2][0], 0);
+}
+
+TEST_F(GraphAlgorithmsTest, GetSpanTreeWeightedGraph) {
+  weighted_graph.valid_graph_ = true;
+  auto [matrix, weight] = GraphAlgorithms::GetSpanTree(weighted_graph);
+
+  EXPECT_EQ(weight, 10);
+
+  EXPECT_EQ(matrix[0][1], 5);
+  EXPECT_EQ(matrix[1][0], 5);
+  EXPECT_EQ(matrix[1][2], 3);
+  EXPECT_EQ(matrix[2][1], 3);
+  EXPECT_EQ(matrix[2][3], 2);
+  EXPECT_EQ(matrix[3][2], 2);
+  EXPECT_EQ(matrix[0][2], 0);
+  EXPECT_EQ(matrix[2][0], 0);
+  EXPECT_EQ(matrix[1][3], 0);
+  EXPECT_EQ(matrix[3][1], 0);
+}
+
+TEST_F(GraphAlgorithmsTest, GetLeastSpanningTreeValidGraph1) {
+  valid_graph1.valid_graph_ = true;
+  Alias::IntGrid result = GraphAlgorithms::GetLeastSpanningTree(valid_graph1);
+
+  EXPECT_EQ(result[0][1], 1);
+  EXPECT_EQ(result[1][0], 1);
+  EXPECT_EQ(result[1][2], 2);
+  EXPECT_EQ(result[2][1], 2);
+  EXPECT_EQ(result[0][2], 0);
+  EXPECT_EQ(result[2][0], 0);
+}
+
+TEST_F(GraphAlgorithmsTest, GetSpanTreeWeightValidGraph2) {
+  valid_graph2.valid_graph_ = true;
+  int weight = GraphAlgorithms::GetSpanTreeWeight(valid_graph2);
+  EXPECT_EQ(weight, 10);
+}
+
+TEST_F(GraphAlgorithmsTest, GetSpanTreeGraphWithLoop) {
+  graph_with_loop.valid_graph_ = true;
+  auto [matrix, weight] = GraphAlgorithms::GetSpanTree(graph_with_loop);
+
+  EXPECT_EQ(weight, 1);
+  EXPECT_EQ(matrix[0][1], 1);
+  EXPECT_EQ(matrix[1][0], 1);
+}
+
+TEST_F(GraphAlgorithmsTest, GetSpanTreeGraph3) {
+  graph3_.valid_graph_ = true;
+  auto [matrix, weight] = GraphAlgorithms::GetSpanTree(graph3_);
+
+  EXPECT_EQ(weight, 2);
+  int edge_count = 0;
+  for (const auto& row : matrix) {
+    for (int val : row) {
+      if (val > 0) edge_count++;
+    }
+  }
+  EXPECT_EQ(edge_count, 4);
+}
+
+TEST_F(GraphAlgorithmsTest, ThrowsOnEmptyGraph) {
+  EXPECT_THROW(
+      { GraphAlgorithms::SolveTravelingSalesmanProblem(empty_graph_); },
+      std::invalid_argument);
+}
+
+TEST_F(GraphAlgorithmsTest, ThrowsOnDisconnectedGraph) {
+  disconnected_graph.valid_graph_ = true;
+  EXPECT_THROW(
+      { GraphAlgorithms::SolveTravelingSalesmanProblem(disconnected_graph); },
+      std::runtime_error);
+}
+
+TEST_F(GraphAlgorithmsTest, DoesNotThrowOnValidGraph) {
+  valid_graph_.valid_graph_ = true;
+  EXPECT_NO_THROW(
+      { GraphAlgorithms::SolveTravelingSalesmanProblem(valid_graph_); });
+}
+
+TEST_F(GraphAlgorithmsTest, ReturnsValidResultOnValidGraph) {
+  valid_graph_.valid_graph_ = true;
+  TsmResult result =
+      GraphAlgorithms::SolveTravelingSalesmanProblem(valid_graph_);
+
+  EXPECT_EQ(result.vertices.size(), valid_graph_.get_graph_size() + 1);
+
+  std::unordered_set<size_t> unique_vertices(result.vertices.begin(),
+                                             result.vertices.end() - 1);
+  EXPECT_EQ(unique_vertices.size(), valid_graph_.get_graph_size());
+
+  EXPECT_GT(result.distance, 0);
 }
