@@ -2,7 +2,7 @@
 
 This project is a C++20 static library suite for working with graphs. It includes implementations for basic graph traversal, shortest path algorithms, minimum spanning tree computation, and solving the Traveling Salesman Problem (TSP) using the ant colony algorithm.
 
-![Screenshot](readme_src/screen_1.png)
+![Screenshot](src/readme_src/screen_1.png)
 
 The project consists of two core libraries:
 - `s21_graph`: a basic graph representation based on an adjacency matrix.
@@ -33,7 +33,7 @@ The project consists of two core libraries:
   ```cpp
   void ExportGraphToDot(std::string filename);
   ```
-  ![Screenshot_dot](readme_src/screen_2_dot.png)  
+  ![Screenshot_dot](src/readme_src/screen_2_dot.png)  
 
 #### Library: `s21_graph_algorithms`
 
