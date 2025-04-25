@@ -1,8 +1,23 @@
+/**
+ * @file s21_graph_algorithms.tpp
+ * @author montoyay (https://t.me/tdutanton)
+ * @author buggkell (https://t.me/a_a_sorokina)
+ * @brief Generic graph traversal function
+ */
+
 #ifndef S21_GRAPH_ALGORITHMS_TPP
 #define S21_GRAPH_ALGORITHMS_TPP
 
 #include "s21_graph_algorithms.h"
 
+/**
+ * @brief Generic graph traversal function
+ * @tparam T Container type (stack for DFS, queue for BFS)
+ * @param[in] a_graph Graph to traverse
+ * @param[in] a_start_vertex Starting vertex index
+ * @param[in] a_container Data structure to use for traversal
+ * @return Sequence of visited nodes
+ */
 template <typename T>
 Alias::NodesPath TraverseGraph(const Graph& a_graph, int a_start_vertex,
                                T& a_container) {

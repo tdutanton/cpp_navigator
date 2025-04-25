@@ -6,6 +6,7 @@
  * This header defines type aliases used throughout the graph library and
  * constants for graph serialization/deserialization.
  */
+
 #ifndef COMMON_H
 #define COMMON_H
 

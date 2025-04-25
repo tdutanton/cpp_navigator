@@ -1,3 +1,16 @@
+/**
+ * @file cli.cpp
+ * @brief Command Line Interface for Graph Algorithms
+ * @author montoyay (https://t.me/tdutanton)
+ * @author buggkell (https://t.me/a_a_sorokina)
+ * Provides a user interface to interact with graph algorithms including:
+ * - Graph loading and visualization
+ * - BFS/DFS traversals
+ * - Shortest path algorithms (Dijkstra, Floyd-Warshall)
+ * - Minimum Spanning Tree
+ * - Traveling Salesman Problem solution
+ */
+
 #include "cli.h"
 
 void print_string(const std::string& a_string) { std::cout << a_string; }
@@ -169,7 +182,7 @@ void View::set_ants() {
       new_line();
       std::cout << "Shortest path: ";
       for (const auto& i : res.vertices) {
-        std::cout << i << " ";
+        std::cout << i + 1 << " ";
       }
       new_line();
       print_string(Menu::ui_line);

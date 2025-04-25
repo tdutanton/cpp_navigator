@@ -11,7 +11,10 @@ class GraphAlgorithmsTest : public ::testing::Test {
         weighted_graph(4),
         valid_graph1(3),
         valid_graph2(4),
-        graph_with_loop(2) {
+        graph_with_loop(2),
+        empty_graph_(0),
+        no_hamiltonian_graph_(3),
+        valid_graph_(3) {
     CreateTestGraphs();
   }
   void SetUp() override { CreateTestGraphs(); }
@@ -76,6 +79,22 @@ class GraphAlgorithmsTest : public ::testing::Test {
     graph_with_loop = Graph(2);
     graph_with_loop[0][1] = 1;
     graph_with_loop[1][0] = 1;
+
+    empty_graph_ = Graph(0);
+
+    no_hamiltonian_graph_ = Graph(3);
+    no_hamiltonian_graph_[0][1] = 1;
+    no_hamiltonian_graph_[1][0] = 1;
+    no_hamiltonian_graph_[1][2] = 1;
+    no_hamiltonian_graph_[2][1] = 1;
+
+    valid_graph_ = Graph(3);
+    valid_graph_[0][1] = 1;
+    valid_graph_[1][0] = 1;
+    valid_graph_[0][2] = 1;
+    valid_graph_[2][0] = 1;
+    valid_graph_[1][2] = 1;
+    valid_graph_[2][1] = 1;
   }
 
   Graph graph1_;
@@ -87,6 +106,10 @@ class GraphAlgorithmsTest : public ::testing::Test {
   Graph valid_graph1;
   Graph valid_graph2;
   Graph graph_with_loop;
+
+  Graph empty_graph_;
+  Graph no_hamiltonian_graph_;
+  Graph valid_graph_;
 };
 
 TEST_F(GraphAlgorithmsTest, DFS_InvalidStartVertex) {
@@ -350,4 +373,37 @@ TEST_F(GraphAlgorithmsTest, GetSpanTreeGraph3) {
     }
   }
   EXPECT_EQ(edge_count, 4);
+}
+
+TEST_F(GraphAlgorithmsTest, ThrowsOnEmptyGraph) {
+  EXPECT_THROW(
+      { GraphAlgorithms::SolveTravelingSalesmanProblem(empty_graph_); },
+      std::invalid_argument);
+}
+
+TEST_F(GraphAlgorithmsTest, ThrowsOnDisconnectedGraph) {
+  disconnected_graph.valid_graph_ = true;
+  EXPECT_THROW(
+      { GraphAlgorithms::SolveTravelingSalesmanProblem(disconnected_graph); },
+      std::runtime_error);
+}
+
+TEST_F(GraphAlgorithmsTest, DoesNotThrowOnValidGraph) {
+  valid_graph_.valid_graph_ = true;
+  EXPECT_NO_THROW(
+      { GraphAlgorithms::SolveTravelingSalesmanProblem(valid_graph_); });
+}
+
+TEST_F(GraphAlgorithmsTest, ReturnsValidResultOnValidGraph) {
+  valid_graph_.valid_graph_ = true;
+  TsmResult result =
+      GraphAlgorithms::SolveTravelingSalesmanProblem(valid_graph_);
+
+  EXPECT_EQ(result.vertices.size(), valid_graph_.get_graph_size() + 1);
+
+  std::unordered_set<size_t> unique_vertices(result.vertices.begin(),
+                                             result.vertices.end() - 1);
+  EXPECT_EQ(unique_vertices.size(), valid_graph_.get_graph_size());
+
+  EXPECT_GT(result.distance, 0);
 }

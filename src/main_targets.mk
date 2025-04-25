@@ -6,6 +6,12 @@
 .PHONY: all
 all: clean build
 
+.PHONY: run
+run:
+	@echo "Compiling and running..."
+	@$(CC) $(CFLAGS) $(MAIN_CPP) view/cli.cpp -L$(EXE_DIR) -l:$(LIB_NAME_GRAPH) -l:$(LIB_NAME_ALGORITHMS) -o $(EXE)
+	@$(EXE_DIR)$(EXE)
+
 #### <<BUILD>> ####
 .PHONY: build
 build: s21_graph s21_graph_algorithms
@@ -85,25 +91,29 @@ clean: gcov_clean
 	@rm -rf build
 	@rm -rf $(DIR_REPORT)
 	@rm -rf *.exe
+	@rm -rf $(EXE)
 
 .PHONY: install
 install:
 	@echo "INSTALLATION IN PROGRESS"
 	@(make -s $(LIB_NAME_GRAPH))
 	@(make -s $(LIB_NAME_ALGORITHMS))
-	@mkdir -p $(DIR_INSTALL)/
-	@mv $(LIB_NAME_GRAPH) $(LIB_NAME_ALGORITHMS) $(DIR_INSTALL)/
-	@(make -s clean)
-	@echo "INSTALLATION COMPLETED - LIBS IN $(DIR_INSTALL) FOLDER"
+	@mkdir -p $(DESTDIR)$(LIBDIR)
+	@cp $(LIB_NAME_GRAPH) $(LIB_NAME_ALGORITHMS) $(DESTDIR)$(LIBDIR)
+	@mkdir -p $(DESTDIR)$(INCDIR)
+	@cp $(ALL_HEADERS) $(DESTDIR)$(INCDIR)
+	@echo "INSTALLATION COMPLETED - LIBS IN $(DESTDIR)$(LIBDIR) FOLDER. HEADERS - IN $(DESTDIR)$(INCDIR) FOLDER"
 
-.PHONY: uml_diagram
-uml_diagram: pip3_check_lib uml_check_lib plantuml_check_lib
-	@$(UML_LIB) -i "model/**/*.h" -i "gui/*.h" -o $(UML_FILE_NAME) -d
-	@plantuml $(UML_FILE_NAME)
-	@echo "UML diagram saved to $(UML_PNG_FILE_NAME), puml file saved to $(UML_FILE_NAME)"
+.PHONY: uninstall
+uninstall:
+	@echo "UNINSTALLING..."
+	@rm -f $(DESTDIR)$(LIBDIR)/$(LIB_NAME_GRAPH)
+	@rm -f $(DESTDIR)$(LIBDIR)/$(LIB_NAME_ALGORITHMS)
+	@rm -f $(addprefix $(DESTDIR)$(INCDIR)/, $(notdir $(ALL_HEADERS)))
+	@echo "UNINSTALL COMPLETED"
 
 .PHONY: dvi
-dvi: clean doxygen_check_lib xetex_check_lib cyrillic_check_lib
+dvi: doxygen_check_lib xetex_check_lib cyrillic_check_lib
 	@mkdir -p $(DIR_DOCS)
 	@doxygen Doxyfile > /dev/null 2>&1
 	@cd $(DIR_DOCS)/latex && xelatex -interaction=batchmode refman.tex > /dev/null 2>&1
@@ -111,11 +121,16 @@ dvi: clean doxygen_check_lib xetex_check_lib cyrillic_check_lib
 	pdf and $(DIR_DOCS)/html/index.html for html"; else echo "DVI ERROR"; fi
 
 .PHONY: dist
-dist: build
-	@mkdir -p $(DIR_DIST)/
-	@cp build/$(DIST_FILE) $(DIR_DIST)/$(DIST_FILE)
-	tar cvzf $(DIR_DIST).tgz $(DIR_DIST)/
-	@rm -rf $(DIR_DIST)/
+dist: all
+	@echo "Creating dist archive..."
+	@mkdir -p $(DIR_DIST)/lib
+	@mkdir -p $(DIR_DIST)/include/graph
+	@cp $(LIB_NAME_GRAPH) $(LIB_NAME_ALGORITHMS) $(DIR_DIST)/lib/
+	@cp $(ALL_HEADERS) $(DIR_DIST)/include/graph/
+	@cp -r readme_src Makefile $(DIR_DIST)/
+	tar czf $(DIST_NAME).tar.gz -C dist $(DIST_NAME)
+	@rm -rf $(DIR_DIST)
+	@echo "Archive created: $(DIST_NAME).tar.gz"
 
 .PHONY: rebuild
 rebuild: clean build

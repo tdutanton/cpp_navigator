@@ -4,6 +4,7 @@
  * @author buggkell (https://t.me/a_a_sorokina)
  * @brief Handles file operations for graph data reading and parsing.
  */
+
 #ifndef FILEREADER_H
 #define FILEREADER_H
 

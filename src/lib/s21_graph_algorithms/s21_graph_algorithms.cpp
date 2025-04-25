@@ -1,3 +1,17 @@
+/**
+ * @file s21_graph_algorithms.cpp
+ * @author montoyay (https://t.me/tdutanton)
+ * @author buggkell (https://t.me/a_a_sorokina)
+ * @brief Graph algorithms implementation including traversal, shortest path,
+ * and TSP solutions
+ *
+ * Contains implementations of various graph algorithms including:
+ * - Depth-first and breadth-first search
+ * - Shortest path algorithms (Dijkstra, Floyd-Warshall)
+ * - Minimum spanning tree algorithms
+ * - Ant Colony Optimization for Traveling Salesman Problem
+ */
+
 #include "s21_graph_algorithms.h"
 
 Alias::NodesPath GraphAlgorithms::DepthFirstSearch(const Graph& graph,
@@ -18,29 +32,29 @@ ShortPath GraphAlgorithms::GetShortPath(const Graph& graph,
   const size_t size = graph.get_graph_size();
   if (size == 0 || start_index < 0 || static_cast<size_t>(start_index) >= size)
     return result;
-  /// Container of visit statuses for nodes
+  // Container of visit statuses for nodes
   std::vector<bool> visited(size, false);
-  ///< Minimal distance to nodes. distance[i] - current minimal distance from
-  ///< start to i
+  // Minimal distance to nodes. distance[i] - current minimal distance from
+  // start to i
   std::vector<Alias::distance> distance_array(size, UINT_MAX);
-  ///< Previous node in minimal path
+  // Previous node in minimal path
   std::vector<int> prev_node(size, -1);
 
-  /// Min-heap - get node with minimal distance
-  /// pair<unsigned, unsigned> - distance, node_index
+  // Min-heap - get node with minimal distance
+  // pair<unsigned, unsigned> - distance, node_index
   std::priority_queue<
       std::pair<Alias::distance, Alias::node_index>,
       std::vector<std::pair<Alias::distance, Alias::node_index>>,
       std::greater<>>
       queue_nodes;
 
-  /// Distance for start_node = 0
+  // Distance for start_node = 0
   distance_array[start_index] = 0;
-  /// Push in queue just like in BreadthFirstSearch
+  // Push in queue just like in BreadthFirstSearch
   queue_nodes.push(std::make_pair(0, start_index));
 
   while (!queue_nodes.empty()) {
-    /// Take the nearest node always - priority_queue helps
+    // Take the nearest node always - priority_queue helps
     Alias::distance current_distance = queue_nodes.top().first;
     Alias::node_index current_node = queue_nodes.top().second;
     queue_nodes.pop();
@@ -48,21 +62,21 @@ ShortPath GraphAlgorithms::GetShortPath(const Graph& graph,
     if (visited[current_node]) continue;
     visited[current_node] = true;
 
-    /// Look every neighboors (i_neigh) of current_node
+    // Look every neighboors (i_neigh) of current_node
     for (Alias::node_index i_neighbor = 0; i_neighbor < size; ++i_neighbor) {
-      /// Distance from current_node to i_neigh
+      // Distance from current_node to i_neigh
       Alias::distance weight = graph[current_node][i_neighbor];
       if (weight > 0 && !visited[i_neighbor]) {
-        /// New distance to neighboor
+        // New distance to neighboor
         Alias::distance perspective_distance = current_distance + weight;
         /// If new distance is lower - refresh distance_array to this node
-        /// (i_neigh)
+        // (i_neigh)
         if (perspective_distance < distance_array[i_neighbor]) {
-          /// Refresh new distance - it's shorter than previous value
+          // Refresh new distance - it's shorter than previous value
           distance_array[i_neighbor] = perspective_distance;
-          /// Refresh the best prev_node of i_neigh for take a path
+          // Refresh the best prev_node of i_neigh for take a path
           prev_node[i_neighbor] = current_node;
-          /// Push neighboor to queue to take it in a future
+          // Push neighboor to queue to take it in a future
           queue_nodes.push(std::make_pair(perspective_distance, i_neighbor));
         }
       }
@@ -77,7 +91,7 @@ ShortPath GraphAlgorithms::GetShortPath(const Graph& graph,
 unsigned GraphAlgorithms::GetShortestPathBetweenVertices(const Graph& graph,
                                                          const int vertex1,
                                                          const int vertex2) {
-  /// minus 1 because of indexes values goes from 0
+  // minus 1 because of indexes values goes from 0
   const size_t size = graph.get_graph_size();
   if ((vertex1 <= 0 || static_cast<size_t>(vertex1) > size) ||
       (vertex2 <= 0 || static_cast<size_t>(vertex2) > size))
@@ -217,7 +231,7 @@ bool Ant::is_vertex_unvisited(const Alias::node_index a_vertex) const {
 
 void Ant::visit_vertex(const Graph& a_graph, const Alias::node_index a_vertex) {
   if (!ant_path_.vertices.empty()) {
-    // Добавляем расстояние от предыдущей вершины к новой
+    // add distance from current vertex to new
     ant_path_.distance += a_graph[current_vertex_][a_vertex];
   }
   current_vertex_ = a_vertex;
@@ -252,6 +266,29 @@ void AntHill::set_p_pheromone_evaporation_coef(const double a_value) {
 void AntHill::set_start_pheromone_(const double a_value) {
   start_pheromone_ = a_value;
 }
+
+bool GraphAlgorithms::is_graph_connected(const Graph& graph) {
+  if (graph.get_graph_size() == 0) return false;
+
+  std::vector<bool> visited(graph.get_graph_size(), false);
+  std::queue<size_t> q;
+  q.push(0);
+  visited[0] = true;
+
+  while (!q.empty()) {
+    size_t current = q.front();
+    q.pop();
+
+    for (size_t neighbor = 0; neighbor < graph.get_graph_size(); ++neighbor) {
+      if (graph[current][neighbor] > 0 && !visited[neighbor]) {
+        visited[neighbor] = true;
+        q.push(neighbor);
+      }
+    }
+  }
+
+  return std::all_of(visited.begin(), visited.end(), [](bool v) { return v; });
+};
 
 AntHill::AntHill(const Graph& a_graph) : graph_{a_graph} {
   anthill_size_ = graph_.get_graph_size();
@@ -353,7 +390,7 @@ size_t AntHill::choose_next_vertex(const Ant& a_ant) const {
     sum_prob += prob;
   }
   if (sum_prob <= 0.0) {
-    // Если все вероятности нулевые - выбираем случайного соседа равновероятно
+    // if sum probability is zero - choose random neighbor randomly
     size_t random_idx =
         static_cast<size_t>(rand()) % available_neighbors.size();
     return available_neighbors[random_idx];
@@ -370,7 +407,7 @@ size_t AntHill::choose_next_vertex(const Ant& a_ant) const {
 void AntHill::run_ant_colony() {
   prepare_ants();
   for (size_t iteration = 0; iteration < anthill_size_; ++iteration) {
-    // Сначала все муравьи строят пути
+    // All ants build paths
     for (Ant& ant : ant_squad_) {
       while (true) {
         size_t next_vertex = choose_next_vertex(ant);
@@ -379,14 +416,14 @@ void AntHill::run_ant_colony() {
           break;
         }
         ant.visit_vertex(graph_, next_vertex);
-        // Замыкаем цикл, если прошли все вершины
+        // Close cycle if goes all vertices
         if (ant.get_ant_path_result().vertices.size() == anthill_size_) {
           size_t start = ant.get_ant_path_result().vertices.front();
-          ant.visit_vertex(graph_, start);  // замыкаем цикл
+          ant.visit_vertex(graph_, start);  // close cycle
         }
       }
     }
-    // обновляем феромоны на всех путях
+    // update pheromone on all routes
     for (Ant& ant : ant_squad_) {
       update_pheromone(ant);
     }
@@ -395,20 +432,30 @@ void AntHill::run_ant_colony() {
 
 TsmResult AntHill::solve_salesman_graph() {
   run_ant_colony();
-  TsmResult result = ant_squad_[0].get_ant_path_result();
+  TsmResult best_result;
+  bool found = false;
+
   for (const auto& ant : ant_squad_) {
     const auto& res = ant.get_ant_path_result();
-    if (res.vertices.size() == anthill_size_ + 1 &&
-        res.distance < result.distance) {
-      result = res;
+    if (res.vertices.size() == anthill_size_ + 1) {
+      if (!found || res.distance < best_result.distance) {
+        best_result = res;
+        found = true;
+      }
     }
   }
-  return result;
+  return best_result;
 }
 
 TsmResult GraphAlgorithms::SolveTravelingSalesmanProblem(const Graph& graph) {
-  if (graph.get_graph_size() == 0 || !graph.is_valid_graph())
+  if (graph.get_graph_size() == 0 || !graph.is_valid_graph()) {
     throw std::invalid_argument("Invalid graph");
+  }
+
+  if (!is_graph_connected(graph)) {
+    throw std::runtime_error("Graph is not connected - no solution exists");
+  }
+
   AntHill anthill(graph);
   return anthill.solve_salesman_graph();
 }

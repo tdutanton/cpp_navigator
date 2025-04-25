@@ -24,6 +24,13 @@ valgrind_test_algos: test_algorithms
 	valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=all \
 	--track-origins=yes -s ./$(FILE_NAME_TEST_ALGORITHMS)
 
+.PHONY: uml_diagram
+uml_diagram: pip3_check_lib uml_check_lib plantuml_check_lib
+	@echo "Generating UML diagram..."
+	@$(UML_LIB) $(UML_INPUT_FILES) -i view/cli.h -o $(UML_FILE_NAME) -d
+	@plantuml $(UML_FILE_NAME)
+	@echo "UML diagram saved to $(UML_PNG_FILE_NAME)"
+
 ########################################################
 # 		CHECK IF NEEDED LIBRARIES ARE INSTALLED 	   #
 #						  \/						   #						
