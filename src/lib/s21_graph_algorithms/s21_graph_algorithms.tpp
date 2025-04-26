@@ -33,7 +33,7 @@ Alias::NodesPath TraverseGraph(const Graph& a_graph, int a_start_vertex,
   a_container.push(a_start_vertex - 1);
   // we were in start vertex
   visited[a_start_vertex - 1] = true;
-  // quit point from cycle
+  // main algorithm loop and quit point from cycle
   while (!a_container.empty()) {
     // iteration object
     size_t current_node;
