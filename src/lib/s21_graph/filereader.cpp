@@ -30,9 +30,6 @@ size_t FileReader::process_graph_size(const std::string& a_line) {
     std::string remaining;
     std::getline(iss, remaining);
     if (!remaining.empty() && remaining.back() == '\r') remaining.pop_back();
-    if (!remaining.empty() &&
-        remaining.find_first_not_of(" \t") != std::string::npos)
-      valid_file_ = false;
     if (result <= 1) valid_file_ = false;
   }
   return result;

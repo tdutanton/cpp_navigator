@@ -432,12 +432,6 @@ size_t AntHill::choose_next_vertex(const Ant& a_ant) const {
     probabilities.push_back(prob);
     sum_prob += prob;
   }
-  if (sum_prob <= 0.0) {
-    // if sum probability is zero - choose random neighbor randomly
-    size_t random_idx =
-        static_cast<size_t>(rand()) % available_neighbors.size();
-    return available_neighbors[random_idx];
-  }
   double random = random_destination();
   double summary_probability{0.0};
   for (size_t i = 0; i < available_neighbors.size(); i++) {
