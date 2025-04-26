@@ -120,88 +120,131 @@ Alias::IntRow GraphAlgorithms::GetShortestVectorBetweenVertices(
 
 Alias::IntGrid GraphAlgorithms::GetShortestPathsBetweenAllVertices(
     const Graph& graph) {
+  // Get the number of vertices in the graph
   const size_t size = graph.get_graph_size();
+
+  // Check if graph is empty or invalid
   if (size == 0 || !graph.is_valid_graph())
     throw std::invalid_argument("Invalid graph");
+
+  // Initialize result matrix with INT_MAX (representing infinity) for all
+  // distances
   Alias::IntGrid result{size, std::vector<int>(size, INT_MAX)};
 
+  // Copy the graph's adjacency matrix to the result matrix
+  // Convert 0 values (no edge) to INT_MAX (infinity)
   for (size_t i = 0; i < result.size(); i++) {
     for (size_t j = 0; j < result.size(); j++) {
       if (graph[i][j] == 0)
-        result[i][j] = INT_MAX;
+        result[i][j] = INT_MAX;  // No direct edge between i and j
       else
-        result[i][j] = graph[i][j];
+        result[i][j] = graph[i][j];  // Direct edge with given weight
     }
   }
+  // Set distance from each vertex to itself as 0
   for (size_t i = 0; i < result.size(); i++) {
     result[i][i] = 0;
   }
-
-  for (size_t k = 0; k < size; k++) {
-    for (size_t i = 0; i < size; i++) {
-      for (size_t j = 0; j < size; j++) {
+  // Floyd-Warshall algorithm core - dynamic programming approach
+  // For each intermediate vertex k, update shortest paths between all pairs
+  // (i,j)
+  for (size_t k = 0; k < size; k++) {      // Intermediate vertex
+    for (size_t i = 0; i < size; i++) {    // Source vertex
+      for (size_t j = 0; j < size; j++) {  // Destination vertex
+        // Check if path through k exists and can improve current shortest path
         if (result[i][k] != INT_MAX && result[k][j] != INT_MAX) {
           if (result[i][j] > result[i][k] + result[k][j])
-            result[i][j] = result[i][k] + result[k][j];
+            result[i][j] = result[i][k] + result[k][j];  // Update shortest path
         }
       }
     }
   }
-
+  // Convert remaining INT_MAX values (unreachable vertices) back to 0
+  // This might be application-specific - some implementations keep them as
+  // infinity
   for (size_t i = 0; i < size; i++) {
     for (size_t j = 0; j < size; j++) {
       if (result[i][j] == INT_MAX) result[i][j] = 0;
     }
   }
-
   return result;
 }
 
 SpanTree GraphAlgorithms::GetSpanTree(const Graph& graph) {
+  // Get the number of vertices in the graph
   const size_t size = graph.get_graph_size();
+
+  // Check if graph is empty or invalid
   if (size == 0 || !graph.is_valid_graph())
     throw std::invalid_argument("Invalid graph");
 
+  // Data structures for Prim's algorithm:
+  // Track visited vertices
   std::vector<bool> visited(size, false);
+  // Minimum distances to each node
   std::vector<Alias::distance> distance_array(size, UINT_MAX);
+  // Stores the MST structure (previous nodes)
   std::vector<int> prev_node(size, -1);
+
+  // Priority queue to efficiently get the next minimum-weight edge.
+  // The priority queue automatically sorts elements so that the pair with the
+  // smallest distance always appears at the top. This is a key data structure
+  // for Prim's algorithm to function efficiently, enabling quick access to the
+  // next lightest edge to be added to the spanning tree.
   std::priority_queue<
       std::pair<Alias::distance, Alias::node_index>,
       std::vector<std::pair<Alias::distance, Alias::node_index>>,
       std::greater<>>
       queue_nodes;
 
-  int mst_weight = 0;
+  int mst_weight = 0;  // Total weight of the MST
+
+  // Start with vertex 0 (distance 0)
   distance_array[0] = 0;
   queue_nodes.push(std::make_pair(0, 0));
 
+  // Main algorithm loop
   while (!queue_nodes.empty()) {
+    // Get the closest unvisited vertex
     Alias::node_index current_node = queue_nodes.top().second;
     Alias::distance current_dist = queue_nodes.top().first;
     queue_nodes.pop();
+
+    // Skip if already visited
     if (visited[current_node]) continue;
+
+    // Mark as visited and add to MST weight
     visited[current_node] = true;
     mst_weight += current_dist;
+
+    // Explore all neighbors
     for (Alias::node_index i_neighbor = 0; i_neighbor < size; ++i_neighbor) {
       Alias::distance weight = graph[current_node][i_neighbor];
+
+      // If there's a connection to an unvisited neighbor with better distance
       if (weight > 0 && !visited[i_neighbor] &&
           weight < distance_array[i_neighbor]) {
+        // Update distance and previous node
         distance_array[i_neighbor] = weight;
         prev_node[i_neighbor] = current_node;
+        // Add to priority queue
         queue_nodes.push(std::make_pair(weight, i_neighbor));
       }
     }
   }
 
+  // Convert the MST structure (prev_node array) to adjacency matrix format
   Alias::IntGrid tree_matrix{size, std::vector<int>(size, 0)};
   for (size_t i = 0; i < size; i++) {
     int u = prev_node[i];
     int v = i;
-    if (u != -1) {
+    if (u != -1) {  // If there's a connection in the MST
       tree_matrix[u][v] = graph[u][v];
-      tree_matrix[v][u] = graph[v][u];
+      tree_matrix[v][u] = graph[v][u];  // For undirected graph
     }
   }
+
+  // Return both the MST matrix and its total weight
   return {tree_matrix, mst_weight};
 }
 
@@ -388,12 +431,6 @@ size_t AntHill::choose_next_vertex(const Ant& a_ant) const {
     double prob = ant_transition_probability(a_ant, neighbor);
     probabilities.push_back(prob);
     sum_prob += prob;
-  }
-  if (sum_prob <= 0.0) {
-    // if sum probability is zero - choose random neighbor randomly
-    size_t random_idx =
-        static_cast<size_t>(rand()) % available_neighbors.size();
-    return available_neighbors[random_idx];
   }
   double random = random_destination();
   double summary_probability{0.0};

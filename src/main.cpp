@@ -17,5 +17,6 @@ int main() {
       result_actions[input]();
     }
   }
+  clear_console();
   return 0;
 }

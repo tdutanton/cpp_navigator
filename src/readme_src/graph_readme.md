@@ -4,6 +4,11 @@ This project is a C++20 static library suite for working with graphs. It include
 
 ![Screenshot](screen_1.png)
 
+## Authors  
+School 21 students:   
+- [Montoyay](https://t.me/tdutanton)  
+- [Buggkell](https://t.me/a_a_sorokina)  
+
 The project consists of two core libraries:
 - `s21_graph`: a basic graph representation based on an adjacency matrix.
 - `s21_graph_algorithms`: a collection of graph algorithms built on top of `s21_graph`.

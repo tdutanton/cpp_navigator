@@ -4,11 +4,26 @@
 ########################################################
 
 .PHONY: all
-all: clean build
+all: build
+	@echo "\n$(GREEN)$(BOLD)$(UNDERLINE)DONE. NOW YOU CAN TESTING LIBS\
+	 OR PUSH \"MAKE RUN\" TO TRY IT IN CONSOLE$(RESET)\n"
+	@echo "\n$(BLUE)$(BOLD)Few interesting make targets (all targets You can see in main_targets.mk file) :$(RESET)"
+	@echo "\n$(BLUE)- build\n\
+	- run\n\
+	- test\n\
+	- style_check\n\
+	- clean\n\
+	- install\n\
+	- uninstall\n\
+	- dvi\n\
+	- dist\n\
+	- gcov_report\n\
+	- uml_diagram\n\
+	- valgrind_all_tests\n$(RESET)"
 
 .PHONY: run
 run:
-	@echo "Compiling and running..."
+	@echo "$(GREEN)Compiling and running...$(RESET)"
 	@$(CC) $(CFLAGS) $(MAIN_CPP) view/cli.cpp -L$(EXE_DIR) -l:$(LIB_NAME_GRAPH) -l:$(LIB_NAME_ALGORITHMS) -o $(EXE)
 	@$(EXE_DIR)$(EXE)
 
@@ -17,13 +32,17 @@ run:
 build: s21_graph s21_graph_algorithms
 
 .PHONY: s21_graph
-s21_graph: $(LIB_GRAPH_O)
+s21_graph: 
+	@echo "$(GREEN)Compiling $(LIB_NAME_GRAPH) library...$(RESET)"
+	@make -s $(LIB_GRAPH_O)
 	@ar rcs $(LIB_NAME_GRAPH) $(LIB_GRAPH_O)
 	@ranlib $(LIB_NAME_GRAPH)
 	@rm -f $(LIB_GRAPH_O)
 
 .PHONY: s21_graph_algorithms
-s21_graph_algorithms: $(LIB_ALGORITHMS_O)
+s21_graph_algorithms: 
+	@echo "$(GREEN)Compiling $(LIB_NAME_ALGORITHMS) library...$(RESET)"
+	@make -s $(LIB_ALGORITHMS_O)
 	@ar rcs $(LIB_NAME_ALGORITHMS) $(LIB_ALGORITHMS_O)
 	@ranlib $(LIB_NAME_ALGORITHMS)
 	@rm -f $(LIB_ALGORITHMS_O)
@@ -48,7 +67,7 @@ test: test_graph test_algorithms
 
 .PHONY: test_graph
 test_graph: $(TEST_GRAPH_O) $(LIB_NAME_GRAPH)
-	@echo "Start testing graph"
+	@echo "$(GREEN)Start testing graph$(RESET)"
 	@rm -f $(FILE_NAME_TEST_GRAPH)
 	@$(CC) $(CFLAGS) $(TEST_GRAPH_O) -DTEST -o $(FILE_NAME_TEST_GRAPH) \
 	-L. -l:$(LIB_NAME_GRAPH) $(LFLAGS) $(DEBUG_FLAG)
@@ -56,7 +75,7 @@ test_graph: $(TEST_GRAPH_O) $(LIB_NAME_GRAPH)
 
 .PHONY: test_algorithms
 test_algorithms: $(TEST_ALGORITHMS_O) $(LIB_NAME_ALGORITHMS)
-	@echo "Start testing graph algorithms"
+	@echo "$(GREEN)Start testing graph algorithms$(RESET)"
 	@rm -f $(FILE_NAME_TEST_ALGORITHMS)
 	@$(CC) $(CFLAGS) $(TEST_ALGORITHMS_O) -DTEST -o $(FILE_NAME_TEST_ALGORITHMS) \
 	 -L. -l:$(LIB_NAME_ALGORITHMS) $(LFLAGS) $(DEBUG_FLAG)
@@ -79,6 +98,7 @@ style_fix:
 
 .PHONY: clean
 clean: gcov_clean
+	@echo "$(GREEN)CLEANING...$(RESET)"
 	@rm -rf $(FILE_NAME_TEST_GRAPH) $(FILE_NAME_TEST_ALGORITHMS) *.o .clang-format
 	@rm -rf $(LIB_GRAPH_O) $(LIB_ALGORITHMS_O) ./tests/**/*.o *.gcno *.gcda ./report
 	@rm -rf $(GCOV_NAME)
@@ -92,37 +112,44 @@ clean: gcov_clean
 	@rm -rf $(DIR_REPORT)
 	@rm -rf *.exe
 	@rm -rf $(EXE)
+	@echo "$(GREEN)CLEANING DONE$(RESET)"
+
+.PHONY: clean_hard
+clean_hard: clean
+	@echo "$(GREEN)CLEANING CREATED FILES...$(RESET)"
+	@rm -rf *.dot
+	@echo "$(GREEN)CLEANING CREATED FILES DONE$(RESET)"
 
 .PHONY: install
 install:
-	@echo "INSTALLATION IN PROGRESS"
+	@echo "$(GREEN)INSTALLATION IN PROGRESS$(RESET)"
 	@(make -s $(LIB_NAME_GRAPH))
 	@(make -s $(LIB_NAME_ALGORITHMS))
 	@mkdir -p $(DESTDIR)$(LIBDIR)
 	@cp $(LIB_NAME_GRAPH) $(LIB_NAME_ALGORITHMS) $(DESTDIR)$(LIBDIR)
 	@mkdir -p $(DESTDIR)$(INCDIR)
 	@cp $(ALL_HEADERS) $(DESTDIR)$(INCDIR)
-	@echo "INSTALLATION COMPLETED - LIBS IN $(DESTDIR)$(LIBDIR) FOLDER. HEADERS - IN $(DESTDIR)$(INCDIR) FOLDER"
+	@echo "$(GREEN)INSTALLATION COMPLETED - LIBS IN $(DESTDIR)$(LIBDIR) FOLDER. HEADERS - IN $(DESTDIR)$(INCDIR) FOLDER$(RESET)"
 
 .PHONY: uninstall
 uninstall:
-	@echo "UNINSTALLING..."
+	@echo "$(GREEN)UNINSTALLING...$(RESET)"
 	@rm -f $(DESTDIR)$(LIBDIR)/$(LIB_NAME_GRAPH)
 	@rm -f $(DESTDIR)$(LIBDIR)/$(LIB_NAME_ALGORITHMS)
 	@rm -f $(addprefix $(DESTDIR)$(INCDIR)/, $(notdir $(ALL_HEADERS)))
-	@echo "UNINSTALL COMPLETED"
+	@echo "$(GREEN)UNINSTALL COMPLETED$(RESET)"
 
 .PHONY: dvi
 dvi: doxygen_check_lib xetex_check_lib cyrillic_check_lib
 	@mkdir -p $(DIR_DOCS)
 	@doxygen Doxyfile > /dev/null 2>&1
 	@cd $(DIR_DOCS)/latex && xelatex -interaction=batchmode refman.tex > /dev/null 2>&1
-	@if [ $$? -eq 0 ]; then echo "DVI make success. See $(DIR_DOCS)/latex/refman.pdf for \
-	pdf and $(DIR_DOCS)/html/index.html for html"; else echo "DVI ERROR"; fi
+	@if [ $$? -eq 0 ]; then echo "$(GREEN)DVI make success\nSee $(DIR_DOCS)/latex/refman.pdf for \
+	pdf and $(DIR_DOCS)/html/index.html for html version$(RESET)"; else echo "$(RED)DVI ERROR$(RESET)"; fi
 
 .PHONY: dist
 dist: all
-	@echo "Creating dist archive..."
+	@echo "$(GREEN)Creating dist archive...$(RESET)"
 	@mkdir -p $(DIR_DIST)/lib
 	@mkdir -p $(DIR_DIST)/include/graph
 	@cp $(LIB_NAME_GRAPH) $(LIB_NAME_ALGORITHMS) $(DIR_DIST)/lib/
@@ -130,7 +157,7 @@ dist: all
 	@cp -r readme_src Makefile $(DIR_DIST)/
 	tar czf $(DIST_NAME).tar.gz -C dist $(DIST_NAME)
 	@rm -rf $(DIR_DIST)
-	@echo "Archive created: $(DIST_NAME).tar.gz"
+	@echo "$(GREEN)Archive created: $(DIST_NAME).tar.gz$(RESET)"
 
 .PHONY: rebuild
 rebuild: clean build
@@ -140,7 +167,7 @@ gcov_report: gcov_clean gcov_graph gcov_algorithms
 
 PHONY: gcov_graph
 gcov_graph:
-	@echo "Start making gcov report - graph lib"
+	@echo "$(GREEN)Start making gcov report - graph lib$(RESET)"
 	@$(CC) $(CFLAGS) $(GFLAGS) -c $(LIB_GRAPH_SRC)
 	@$(CC) $(CFLAGS) $(GFLAGS) -c $(TEST_GRAPH_SRC)
 	@$(CC) *.o -o $(FILE_NAME_TEST_GRAPH) $(LFLAGS) $(GFLAGS)
@@ -151,11 +178,11 @@ gcov_graph:
 		--exclude '*tests*' \
 		--exclude '*gtest*'
 	@genhtml -o $(DIR_REPORT) $(GCOV_NAME)
-	@echo "Open $(DIR_REPORT)/index.html to view coverage report"
+	@echo "$(GREEN)Open $(DIR_REPORT)/index.html to view coverage report$(RESET)"
 
 PHONY: gcov_algorithms
 gcov_algorithms:
-	@echo "Start making gcov report - graph_algorithms lib"
+	@echo "$(GREEN)Start making gcov report - graph_algorithms lib$(RESET)"
 	@$(CC) $(CFLAGS) $(GFLAGS) -c $(LIB_ALGORITHMS_SRC)
 	@$(CC) $(CFLAGS) $(GFLAGS) -c $(TEST_ALGORITHMS_SRC)
 	@$(CC) *.o -o $(FILE_NAME_TEST_ALGORITHMS) $(LFLAGS) $(GFLAGS)
@@ -166,7 +193,7 @@ gcov_algorithms:
 		--exclude '*tests*' \
 		--exclude '*gtest*'
 	@genhtml -o $(DIR_REPORT) $(GCOV_NAME)
-	@echo "Open $(DIR_REPORT)/index.html to view coverage report"
+	@echo "$(GREEN)Open $(DIR_REPORT)/index.html to view coverage report$(RESET)"
 
 .PHONY: gcov_clean
 gcov_clean:

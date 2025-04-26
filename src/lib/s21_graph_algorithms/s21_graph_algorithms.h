@@ -119,6 +119,8 @@ class GraphAlgorithms {
   /**
    * @brief Gets all pairs shortest paths (Floyd-Warshall algorithm)
    * @param[in] graph Input graph
+   * @details This function implements the Floyd-Warshall algorithm to find
+   * shortest paths between all pairs of vertices in a graph
    * @return Distance matrix between all pairs of vertices
    */
   static Alias::IntGrid GetShortestPathsBetweenAllVertices(const Graph& graph);
@@ -126,6 +128,8 @@ class GraphAlgorithms {
   /**
    * @brief Gets spanning tree information
    * @param[in] graph Input graph
+   * @details // This function implements Prim's algorithm to find a Minimum
+   * Spanning Tree (MST)
    * @return SpanTree structure with tree and weight
    */
   static SpanTree GetSpanTree(const Graph& graph);
