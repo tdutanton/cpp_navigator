@@ -311,26 +311,10 @@ void AntHill::set_start_pheromone_(const double a_value) {
 }
 
 bool GraphAlgorithms::is_graph_connected(const Graph& graph) {
-  if (graph.get_graph_size() == 0) return false;
-
-  std::vector<bool> visited(graph.get_graph_size(), false);
-  std::queue<size_t> q;
-  q.push(0);
-  visited[0] = true;
-
-  while (!q.empty()) {
-    size_t current = q.front();
-    q.pop();
-
-    for (size_t neighbor = 0; neighbor < graph.get_graph_size(); ++neighbor) {
-      if (graph[current][neighbor] > 0 && !visited[neighbor]) {
-        visited[neighbor] = true;
-        q.push(neighbor);
-      }
-    }
-  }
-
-  return std::all_of(visited.begin(), visited.end(), [](bool v) { return v; });
+  const size_t size = graph.get_graph_size();
+  if (size == 0) return false;
+  auto visited_nodes = BreadthFirstSearch(graph, 1);
+  return (visited_nodes.size() == size);
 };
 
 AntHill::AntHill(const Graph& a_graph) : graph_{a_graph} {
@@ -339,9 +323,8 @@ AntHill::AntHill(const Graph& a_graph) : graph_{a_graph} {
       anthill_size_, std::vector<double>(anthill_size_, start_pheromone_));
   for (size_t i = 0; i < anthill_size_; i++) {
     for (size_t j = 0; j < anthill_size_; j++) {
-      if (i != j && graph_[i][j] > 0) {
+      if (i != j && graph_[i][j] > 0)
         pheromone_matrix_[i][j] = start_pheromone_;
-      }
     }
   }
 }
